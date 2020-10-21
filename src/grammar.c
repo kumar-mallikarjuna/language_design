@@ -1,16 +1,10 @@
-typedef struct alpha_t {
-	char *VT;
+#include "grammar.h"
 
-	struct alpha_t *next;
-} alpha;
-
-typedef struct rule_t {
-	char *LHS;
-
-	struct alpha *RHS;
-} rule;
-
-typedef rule* grammar;
+#include <stdio.h>
 
 void readGrammar(char *g_loc, grammar G){
+	size_t curr_sz = 256;
+	char buff[128];
+	FILE *fp = fopen(g_loc, "r");
+
 }
