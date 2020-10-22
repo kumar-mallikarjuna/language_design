@@ -8,38 +8,43 @@ typedef enum {
 } term;
 
 typedef enum {
-
+	START,
 } non_term;
 
 typedef struct entity_t {
 	int tag;
 
-	non_term V;
-	term a;
+	union {
+		non_term V;
+		term T;
+	} e;
 } entity;
 
 typedef struct entity_ll_t {
-	entity *val;
+	entity val;
 
 	struct entity_ll_t *next;
 } entity_ll;
 
 typedef struct alpha_t {
-	entity_ll_t *str;
+	entity_ll_t *head;
 
 	struct alpha_t *next;
 } alpha;
 
+/*
 typedef struct rule_t {
 	non_term *LHS;
 
 	alpha *RHS;
 } rule;
+*/
 
 typedef struct {
-	size_t rules_sz = 0;
-	non_term start;
-	rule *rules = NULL;
+	size_t capacity = 0;
+	non_term start = START;
+	alpha **rules = NULL;
+	// rule *rules = NULL;
 } grammar;
 
 #endif
