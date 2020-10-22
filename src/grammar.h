@@ -4,11 +4,61 @@
 #include <stdlib.h>
 
 typedef enum {
-
+	PROGRAM,
+	PAR_OP,
+	PAR_CL,
+	CURL_OP,
+	CURL_CL,
+	DECLARE,
+	ID,
+	LIST,
+	VARIABLES,
+	EPSILON,
+	SEMI_C,
+	ARRAY,
+	OF,
+	INTEGER,
+	SQ_OP,
+	ELL,
+	SQ_CL,
+	NUM,
+	JAGGED,
+	VALUES,
+	COLON,
+	SIZE,
+	R1,
+	ASSIGNOP,
+	ADDOP,
+	MULOP,
+	B_OR,
+	B_AND
 } term;
 
 typedef enum {
 	START,
+	BODY,
+	DECLARATION,
+	DECLARATIONS,
+	IDS,
+	TYPE,
+	REC_ARRAY,
+	DIMS,
+	DIM,
+	IDX,
+	JAG_ARRAY,
+	JAGG_INIS,
+	JAGG_ARRAY_NUMS,
+	ARRAY_L,
+	OP_DIM,
+	ASSIGNMENTS,
+	ASSIGNMENT,
+	VARIABLE,
+	INT_LIST,
+	A_EXP,
+	TERM,
+	FACTOR,
+	B_EXP,
+	B_TERM
 } non_term;
 
 typedef struct entity_t {
