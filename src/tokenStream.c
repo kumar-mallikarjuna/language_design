@@ -21,9 +21,9 @@ term gettok(char* ip){ //return enum term
     else if(strcmp(ip,"values"))    return VALUES;
     else if(strcmp(ip,"jagged"))    return JAGGED;
     else if(strcmp(ip,"of"))    return OF;
-    else if(strcmp(ip,"integer"))   return INTEGER;
-    else if(strcmp(ip,"real"))  return REAL;
-    else if(strcmp(ip,"boolean")) return BOOLEAN; 
+    else if(strcmp(ip,"integer"))   return INTEGER_T;
+    else if(strcmp(ip,"real"))  return REAL_T;
+    else if(strcmp(ip,"boolean")) return BOOLEAN_T; 
     else if(strcmp(ip,"+ -")) return ADDOP;
     else if(strcmp(ip,"* /")) return MULOP;
     else if(strcmp(ip,":")) return COLON;

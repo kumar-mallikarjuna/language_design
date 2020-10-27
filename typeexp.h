@@ -29,17 +29,19 @@ typedef struct _primitive_type_exp{
 
 typedef struct _rect_arr_type_exp{
     int dim; 
-    int r1[];
-    int r2[];
+    int **r1;
+    int **r2;
     basic_el basic_el_type;
 }rect_arr_type_exp;
 
 typedef struct _jagged_arr_type_exp{
     int dim; 
-    int r1[];
-    int r2[];
+    int **r1;
+    int **r2;
     basic_el basic_el_type;
 }jagged_arr_type_exp;
+
+/*ignore, not using*
 //making use of the "struct hack" in C99
 //during allocation, need to make space for size of struct + space for the arrays:
 //jagged_arr_type_exp *t = malloc(sizeof(jagged_arr_type_exp) + 100);
