@@ -68,5 +68,6 @@ void tokeniseSourcecode( char *s_loc, tokenStream *s){ // s_loc denotes “sourc
         if(lin == "\n") lcount++;
             //strcat(buff,lin);     
         push(&head, buff, buff , lcount);
+        }
     }
 }
