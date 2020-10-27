@@ -24,8 +24,10 @@ term gettok(char* ip){ //return enum term
     else if(strcmp(ip,"integer"))   return INTEGER_T;
     else if(strcmp(ip,"real"))  return REAL_T;
     else if(strcmp(ip,"boolean")) return BOOLEAN_T; 
-    else if(strcmp(ip,"+ -")) return ADDOP;
-    else if(strcmp(ip,"* /")) return MULOP;
+    else if(strcmp(ip,"+")) return ADDOP;
+    else if(strcmp(ip,"-")) return ADDOP;
+    else if(strcmp(ip,"*")) return MULOP;
+    else if(strcmp(ip,"/")) return MULOP;
     else if(strcmp(ip,":")) return COLON;
     else if(strcmp(ip,";")) return SEMI_C;
     else if(strcmp(ip,"(")) return PAR_OP;
