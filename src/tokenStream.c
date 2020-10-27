@@ -35,10 +35,8 @@ term gettok(char* ip){ //return enum term
     else if(strcmp(ip,"[")) return SQ_OP;
     else if(strcmp(ip,"]")) return SQ_CL;
     else if(strcmp(ip,"=")) return ASSIGNOP;
-    else if(strcmp(ip))
-    //r1t
-    //ellipses
-    //size
+    else if(strcmp(ip,"..")) return ELL;
+    else if(strcmp(ip,"R1")) return R1T;
     else if(strcmp(ip,"|||")) return B_OR;
     else if(strcmp(ip,"&&&")) return B_AND;
     else if(checknum(ip)== 1) return NUM;
@@ -48,7 +46,7 @@ term gettok(char* ip){ //return enum term
 void push(tokenStream** head, char tname[50],char lex[50], int line_no){
     tokenStream* newNode = (tokenStream*)malloc(sizeof(tokenStream));
     strcpy(newNode->lex, lex);
-    strcpy(newNode->tname,gettok(tname));
+    newNode->token = gettok(tname);
     newNode->line_no = line_no;
     newNode->next = *head;
     *head = newNode;
@@ -57,7 +55,7 @@ void push(tokenStream** head, char tname[50],char lex[50], int line_no){
 void tokeniseSourcecode( char *s_loc, tokenStream *s){ // s_loc denotes “sourcecode.txt” as the input 
     FILE *fptr = fopen(s_loc, "r");
     char c, lin[500], buff[1000] = "";
-    int lcount =1;s
+    int lcount =1;
     int rline; //read lines with fscanf
     if(fptr == NULL)   printf("File not found\n");
     else{
