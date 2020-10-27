@@ -44,7 +44,4 @@ typedef struct _jagged_arr_type_exp{
 //during allocation, need to make space for size of struct + space for the arrays:
 //jagged_arr_type_exp *t = malloc(sizeof(jagged_arr_type_exp) + 100);
 
-
-
-
 #endif
