@@ -36,7 +36,7 @@ term gettok(char* ip){ //return enum term
     else if(strcmp(ip,"]")) return SQ_CL;
     else if(strcmp(ip,"=")) return ASSIGNOP;
     else if(strcmp(ip,"..")) return ELL;
-    else if(strcmp(ip,"R1")) return R1T;
+    else if(strcmp(ip,"R1")) return R1_T;
     else if(strcmp(ip,"|||")) return B_OR;
     else if(strcmp(ip,"&&&")) return B_AND;
     else if(checknum(ip)== 1) return NUM;
