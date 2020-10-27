@@ -1,0 +1,50 @@
+<start> PROGRAM PAR_OP PAR_CL CURL_OP <body> CURL_CL
+<body> <p_declaration> <p_assignment>
+<p_declaration> <declaration> <declarations>
+<p_assignment> <assignment> <assignments>
+<declaration> DECLARE <s_l_declare> COLON <type>
+<s_l_declare> LIST OF VARIABLES ID ID <ids>
+<s_l_declare> ID
+<declarations> DECLARE <s_l_declare> COLON <type> <declarations>
+<declarations> EPSILON
+<ids> ID <ids>
+<ids> EPSILON
+<type> JAGGED ARRAY SQ_OP NUM ELL NUM SQ_CL SQ_OP SQ_CL <op_dim> OF INTEGER SEMI_C <jagg_inis>
+<type> ARRAY SQ_OP <idx> ELL <idx> SQ_CL <dims> OF INTEGER SEMI_C
+<type> REAL SEMI_C
+<type> INTEGER SEMI_C
+<type> BOOLEAN SEMI_C
+<dims> SQ_OP <idx> ELL <idx> SQ_CL <dims>
+<dims> EPSILON
+<idx> ID
+<idx> NUM
+<jagg_inis> R1_T SQ_OP NUM SQ_CL COLON SIZE NUM COLON VALUES CURL_OP <jagg_array_nums> CURL_CL <s_or_m_jagg>
+<s_or_m_jagg> R1_T SQ_OP NUM SQ_CL COLON SIZE NUM COLON VALUES CURL_OP <jagg_array_nums> CURL_CL <s_or_m_jagg>
+<s_or_m_jagg> EPSILON
+<jagg_array_nums> NUM <array_l>
+<array_l> NUM <array_l>
+<array_l> SEMI_C <jagg_array_nums>
+<array_l> EPSILON
+<op_dim> SQ_OP SQ_CL
+<op_dim> EPSILON
+<assignments> ID <is_array> ASSIGNOP <exp> SEMI_C <assignments>
+<assignments> EPSILON
+<assignment> ID <is_array> ASSIGNOP <exp> SEMI_C
+<is_array> SQ_OP <ele> <int_list> SQ_CL
+<is_array> EPSILON
+<int_list> NUM <int_list>
+<int_list> ID <int_list>
+<ele> NUM
+<ele> ID
+<exp> NUM <term_2> <exp_2>
+<exp> ID <is_array> <term_2> <exp_2>
+<exp_2> ADDOP <term> <exp_2>
+<exp_2> B_OR <term> <exp_2>
+<exp_2> EPSILON
+<term> NUM <term_2>
+<term> ID <is_array> <term_2>
+<term_2> MUL_OP <factor> <term_2>
+<term_2> B_AND <factor> <term_2>
+<term_2> EPSILON
+<factor> NUM
+<factor> ID <is_array>
