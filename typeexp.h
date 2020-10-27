@@ -18,11 +18,6 @@ typedef struct _type_exp_entry{
     };
 }type_exp;
 
-typedef enum{
-    INTEGER
-}basic_el;
-
-
 typedef struct _primitive_type_exp{
 
 }primitive_type_exp;
@@ -31,14 +26,14 @@ typedef struct _rect_arr_type_exp{
     int dim; 
     int **r1;
     int **r2;
-    basic_el basic_el_type;
+    type basic_el_type;
 }rect_arr_type_exp;
 
 typedef struct _jagged_arr_type_exp{
     int dim; 
     int **r1;
     int **r2;
-    basic_el basic_el_type;
+    type basic_el_type;
 }jagged_arr_type_exp;
 
 /*ignore, not using*/
