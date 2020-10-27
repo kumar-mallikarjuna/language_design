@@ -5,14 +5,14 @@
 #include <string.h>
 
 typedef struct bucket_node_t {
-	char *key;
+	char key[64];
 	void *val;
 	struct bucket_node_t *next;
 } bucket_node;
 
 typedef struct hashmap_t {
-	bucket_node **buckets = NULL;
-	size_t capacity = 0;
+	bucket_node **buckets;
+	size_t capacity;
 } hashmap;
 
 size_t hash(char*, size_t);

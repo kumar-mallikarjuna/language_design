@@ -17,7 +17,6 @@ size_t hash(char *str, size_t size){
 void create_hm(hashmap *map, size_t cap){
 	map->buckets = (bucket_node**) malloc(sizeof(bucket_node*)*cap);
 	map->capacity = cap;
-
 	size_t i;
 
 	for(i=0;i<cap;i++){
@@ -46,7 +45,7 @@ void insert(hashmap *map, char *key, void *val){
 	size_t loc = hash(key, map->capacity);
 
 	bucket_node *n = (bucket_node*) malloc(sizeof(bucket_node));
-	n->key = key;
+	strcpy(n->key, key);
 	n->val = val;
 	n->next = map->buckets[loc];
 

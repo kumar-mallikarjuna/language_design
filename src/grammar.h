@@ -11,12 +11,13 @@ typedef enum {
 	CURL_CL,
 	DECLARE,
 	ID,
+	COLON,
 	LIST,
+	OF,
 	VARIABLES,
 	EPSILON,
 	SEMI_C,
 	ARRAY,
-	OF,
 	INTEGER,
 	REAL,
 	BOOLEAN,
@@ -26,7 +27,6 @@ typedef enum {
 	NUM,
 	JAGGED,
 	VALUES,
-	COLON,
 	SIZE,
 	R1_T,
 	ASSIGNOP,
@@ -79,7 +79,7 @@ typedef struct entity_ll_t {
 } entity_ll;
 
 typedef struct alpha_t {
-	entity_ll_t *head;
+	entity_ll *head;
 
 	struct alpha_t *next;
 } alpha;
@@ -92,11 +92,13 @@ typedef struct rule_t {
 } rule;
 */
 
-typedef struct {
-	size_t capacity = 0;
-	non_term start = START;
-	alpha **rules = NULL;
+typedef struct grammar_t {
+	size_t capacity;
+	non_term start;
+	alpha **rules;
 	// rule *rules = NULL;
 } grammar;
+
+void readGrammar(const char *g_loc, grammar *G);
 
 #endif
