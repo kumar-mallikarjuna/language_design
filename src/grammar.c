@@ -135,101 +135,108 @@ void global_init(){
 	create_hm(&non_terminals, 64);
 
 	non_term *y = (non_term*) malloc(sizeof(non_term));
-
 	*y = START;
-	insert(&non_terminals, "START", y);
+	insert(&non_terminals, "<start>", y);
 
 	y = (non_term*) malloc(sizeof(non_term));
 	*y = BODY;
-	insert(&non_terminals, "BODY", y);
+	insert(&non_terminals, "<body>", y);
+
+	y = (non_term*) malloc(sizeof(non_term));
+	*y = P_DECLARATION;
+	insert(&non_terminals, "<p_declaration>", y);
+
+	y = (non_term*) malloc(sizeof(non_term));
+	*y = P_ASSIGNMENT;
+	insert(&non_terminals, "<p_assignment>", y);
 
 	y = (non_term*) malloc(sizeof(non_term));
 	*y = DECLARATION;
-	insert(&non_terminals, "DECLARATION", y);
+	insert(&non_terminals, "<declaration>", y);
+
+	y = (non_term*) malloc(sizeof(non_term));
+	*y = S_L_DECLARE;
+	insert(&non_terminals, "<s_l_declare>", y);
 
 	y = (non_term*) malloc(sizeof(non_term));
 	*y = DECLARATIONS;
-	insert(&non_terminals, "DECLARATIONS", y);
+	insert(&non_terminals, "<declarations>", y);
 
 	y = (non_term*) malloc(sizeof(non_term));
 	*y = IDS;
-	insert(&non_terminals, "IDS", y);
+	insert(&non_terminals, "<ids>", y);
 
 	y = (non_term*) malloc(sizeof(non_term));
 	*y = TYPE;
-	insert(&non_terminals, "TYPE", y);
-
-	y = (non_term*) malloc(sizeof(non_term));
-	*y = REC_ARRAY;
-	insert(&non_terminals, "REC_ARRAY", y);
+	insert(&non_terminals, "<type>", y);
 
 	y = (non_term*) malloc(sizeof(non_term));
 	*y = DIMS;
-	insert(&non_terminals, "DIMS", y);
-
-	y = (non_term*) malloc(sizeof(non_term));
-	*y = DIM;
-	insert(&non_terminals, "DIM", y);
+	insert(&non_terminals, "<dims>", y);
 
 	y = (non_term*) malloc(sizeof(non_term));
 	*y = IDX;
-	insert(&non_terminals, "IDX", y);
-
-	y = (non_term*) malloc(sizeof(non_term));
-	*y = JAG_ARRAY;
-	insert(&non_terminals, "JAG_ARRAY", y);
+	insert(&non_terminals, "<idx>", y);
 
 	y = (non_term*) malloc(sizeof(non_term));
 	*y = JAGG_INIS;
-	insert(&non_terminals, "JAGG_INIS", y);
+	insert(&non_terminals, "<jagg_inis>", y);
+
+	y = (non_term*) malloc(sizeof(non_term));
+	*y = S_OR_M_JAGG;
+	insert(&non_terminals, "<s_or_m_jagg>", y);
 
 	y = (non_term*) malloc(sizeof(non_term));
 	*y = JAGG_ARRAY_NUMS;
-	insert(&non_terminals, "JAGG_ARRAY_NUMS", y);
+	insert(&non_terminals, "<jagg_array_nums>", y);
 
 	y = (non_term*) malloc(sizeof(non_term));
 	*y = ARRAY_L;
-	insert(&non_terminals, "ARRAY_L", y);
+	insert(&non_terminals, "<array_l>", y);
 
 	y = (non_term*) malloc(sizeof(non_term));
 	*y = OP_DIM;
-	insert(&non_terminals, "OP_DIM", y);
-
-	y = (non_term*) malloc(sizeof(non_term));
-	*y = ASSIGNMENTS;
-	insert(&non_terminals, "ASSIGNMENTS", y);
+	insert(&non_terminals, "<op_dim>", y);
 
 	y = (non_term*) malloc(sizeof(non_term));
 	*y = ASSIGNMENT;
-	insert(&non_terminals, "ASSIGNMENT", y);
+	insert(&non_terminals, "<assignment>", y);
 
 	y = (non_term*) malloc(sizeof(non_term));
-	*y = VARIABLE;
-	insert(&non_terminals, "VARIABLE", y);
+	*y = ASSIGNMENTS;
+	insert(&non_terminals, "<assignments>", y);
+
+	y = (non_term*) malloc(sizeof(non_term));
+	*y = IS_ARRAY;
+	insert(&non_terminals, "<is_array>", y);
 
 	y = (non_term*) malloc(sizeof(non_term));
 	*y = INT_LIST;
-	insert(&non_terminals, "INT_LIST", y);
+	insert(&non_terminals, "<int_list>", y);
 
 	y = (non_term*) malloc(sizeof(non_term));
-	*y = A_EXP;
-	insert(&non_terminals, "A_EXP", y);
+	*y = ELE;
+	insert(&non_terminals, "<ele>", y);
+
+	y = (non_term*) malloc(sizeof(non_term));
+	*y = EXP;
+	insert(&non_terminals, "<exp>", y);
+
+	y = (non_term*) malloc(sizeof(non_term));
+	*y = EXP_2;
+	insert(&non_terminals, "<exp_2>", y);
 
 	y = (non_term*) malloc(sizeof(non_term));
 	*y = TERM;
-	insert(&non_terminals, "TERM", y);
+	insert(&non_terminals, "<term>", y);
+
+	y = (non_term*) malloc(sizeof(non_term));
+	*y = TERM_2;
+	insert(&non_terminals, "<term_2>", y);
 
 	y = (non_term*) malloc(sizeof(non_term));
 	*y = FACTOR;
-	insert(&non_terminals, "FACTOR", y);
-
-	y = (non_term*) malloc(sizeof(non_term));
-	*y = B_EXP;
-	insert(&non_terminals, "B_EXP", y);
-
-	y = (non_term*) malloc(sizeof(non_term));
-	*y = B_TERM;
-	insert(&non_terminals, "B_TERM", y);
+	insert(&non_terminals, "<factor>", y);
 }
 
 void readGrammar(const char *g_loc, grammar *G){
