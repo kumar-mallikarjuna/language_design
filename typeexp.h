@@ -41,7 +41,7 @@ typedef struct _jagged_arr_type_exp{
     basic_el basic_el_type;
 }jagged_arr_type_exp;
 
-/*ignore, not using*
+/*ignore, not using*/
 //making use of the "struct hack" in C99
 //during allocation, need to make space for size of struct + space for the arrays:
 //jagged_arr_type_exp *t = malloc(sizeof(jagged_arr_type_exp) + 100);
