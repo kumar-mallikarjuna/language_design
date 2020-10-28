@@ -21,9 +21,9 @@ term gettok(char* ip){ //return enum term
     else if(strcmp(ip,"values"))    return VALUES;
     else if(strcmp(ip,"jagged"))    return JAGGED;
     else if(strcmp(ip,"of"))    return OF;
-    else if(strcmp(ip,"integer"))   return INTEGER_T;
-    else if(strcmp(ip,"real"))  return REAL_T;
-    else if(strcmp(ip,"boolean")) return BOOLEAN_T; 
+    else if(strcmp(ip,"integer"))   return INTEGER;
+    else if(strcmp(ip,"real"))  return REAL;
+    else if(strcmp(ip,"boolean")) return BOOLEAN; 
     else if(strcmp(ip,"+")) return ADDOP;
     else if(strcmp(ip,"-")) return ADDOP;
     else if(strcmp(ip,"*")) return MULOP;
@@ -55,22 +55,43 @@ void push(tokenStream** head, char tname[50],char lex[50], int line_no){
 }
 
 void tokeniseSourcecode( char *s_loc, tokenStream *s){ // s_loc denotes “sourcecode.txt” as the input 
-    FILE *fptr = fopen(s_loc, "r");
-    //FILE *fptr = fopen("tfile.txt", "r");
-    char c, lin[500], buff[1000] = "";
-    int lcount =1;
+    //FILE *fptr = fopen(s_loc, "r");
+    FILE *fptr = fopen("t1.txt", "r");
+    char c, *lin = NULL, buff[1000] = "";
+    int lcount =0;
     int rline; //read lines with fscanf
     if(fptr == NULL)   printf("File not found\n");
     else{
         //tokenStream* head = NULL;
-
-        while( rline = fscanf(fptr," %s ", lin)){
-            if(rline == EOF)    break;
+	
+	size_t lin_sz;
+	char ch;
+        while(getline(&lin, &lin_sz, fptr) != -1){
         // line number
-        if(lin == "\n") lcount++;
-        strcat(buff,lin);     
-        //push(&head, buff, buff , lcount);
-        push(&s, buff, buff , lcount);
+        lcount++;
+	char *token = strtok(lin, " \t");
+	while(token){
+        	//push(&head, buff, buff , lcount);
+
+		int skip = 1;
+		char *ptr = token;
+		while(*ptr){
+			if(*ptr != ' ' && *ptr != '\t' && *ptr != '\n'){
+				skip = 0;
+				break;
+			}
+
+			ptr++;
+		}
+
+		if(skip == 0){
+        		strcat(buff,token);
+        		push(&s, buff, buff , lcount);
+			printf("%d%s\n", lcount, token);
+		}
+
+		token = strtok(NULL, " ");
+	}
     }
     }
 }

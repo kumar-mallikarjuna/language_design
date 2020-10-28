@@ -1,3 +1,5 @@
+#include "tokenStream.h"
+
 #include<stdio.h>
 
 int main(int argc, char *argv[]){
@@ -9,6 +11,9 @@ int main(int argc, char *argv[]){
 	// Parse grammar
 	printf("Reading source (%s)...\n", s_loc);
 	// Parse source
+	
+	tokenStream s;
+	tokeniseSourcecode(NULL, &s);
 
 	return 0;
 }
