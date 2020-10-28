@@ -298,5 +298,7 @@ void readGrammar(const char *g_loc, grammar *G){
 
 			token = strtok(NULL, " ");
 		}
+
+		RHS->head = head;
 	}
 }

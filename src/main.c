@@ -13,6 +13,7 @@ int main(int argc, char *argv[]){
 	readGrammar(g_loc, &G);
 	printf("Reading source (%s)...\n", s_loc);
 	// Parse source
+	printf("HERE%d\n", G.rules[START]->head->val.e.T);
 
 	return 0;
 }
