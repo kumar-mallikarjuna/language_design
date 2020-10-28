@@ -9,19 +9,21 @@
 #define __PARSER_H__
 
 typedef struct leaf_val{
+	term T;
 	char lexeme[50];
 	int line_num;
 }leaf_val;
 
 
 typedef struct internal_val{
+	non_term V;
 	//type_exp type;
 	entity_ll* g_rule;
 } internal_val;
 
 
 typedef struct node{
-	char sym_name[50];
+	//char sym_name[50];
 	int t;  //terminal check
 	union {
 		internal_val internal;
@@ -50,8 +52,10 @@ typedef struct PDA_element{
 typedef struct PDA_stack{
 
 	PDA_element p_element[300];
-	int count;	
-
+	int count;
 }PDA_stack;
+
+void createParseTree(node *p_tree, tokenStream* tks, grammar G);	
+
 
 #endif
