@@ -56,17 +56,28 @@ void push(tokenStream** head, char tname[50],char lex[50], int line_no){
 
 void tokeniseSourcecode( char *s_loc, tokenStream *s){ // s_loc denotes “sourcecode.txt” as the input 
     FILE *fptr = fopen(s_loc, "r");
+    //FILE *fptr = fopen("tfile.txt", "r");
     char c, lin[500], buff[1000] = "";
     int lcount =1;
     int rline; //read lines with fscanf
     if(fptr == NULL)   printf("File not found\n");
     else{
-        tokenStream* head = NULL;
-        while( rline == fscanf(fptr," %s ", lin)){
+        //tokenStream* head = NULL;
+
+        while( rline = fscanf(fptr," %s ", lin)){
             if(rline == EOF)    break;
         // line number
         if(lin == "\n") lcount++;
-            //strcat(buff,lin);     
-        push(&head, buff, buff , lcount);
+        strcat(buff,lin);     
+        //push(&head, buff, buff , lcount);
+        push(&s, buff, buff , lcount);
+    }
+    }
+}
+
+void printstream( tokenStream *s){
+    while(s->next != NULL){
+        printf("%d %s %d",s->token,s->lex,s->line_no);
+        s= s->next;
     }
 }

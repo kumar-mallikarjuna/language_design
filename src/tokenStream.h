@@ -1,5 +1,5 @@
 #include<stdlib.h>
-
+#include"grammar.h"
 #ifndef TOKENSTREAM_H
 #define TOKENSTREAM_H
 
@@ -14,5 +14,6 @@ void tokeniseSourcecode(char *s_loc, tokenStream *s);
 void push(tokenStream** head, char tname[50],char lex[50], int line_no);
 term gettok(char* ip);
 int checknum(char* ip);
+void printstream( tokenStream *s);
 #endif
 
