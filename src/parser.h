@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<string.h>
 
+#include "grammar.h"
 #include "tokenStream.h"
 //#include "typeexp.h"
 
@@ -17,13 +18,14 @@ typedef struct leaf_val{
 
 typedef struct internal_val{
 	non_term V;
-	type_exp type;
+	//type_exp type;
 	entity_ll* g_rule;
 } internal_val;
 
 
 typedef struct node{
-	//char sym_name[50];
+	char sym_name[50];  //remove later
+	int depth;
 	int t;  //terminal check
 	union {
 		internal_val internal;
@@ -55,7 +57,6 @@ typedef struct PDA_stack{
 	int count;
 }PDA_stack;
 
-void createParseTree(node *p_tree, tokenStream* tks, grammar G);	
-
+void createParseTree(node **p_tree, tokenStream* tks, grammar G);	
 
 #endif
