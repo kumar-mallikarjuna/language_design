@@ -1,11 +1,8 @@
 #include "parser.h"
 
-
 void init_PDA(PDA_stack *p){
 
-	//init_PDA_element(p->top);
 	p->count = 0;
-	//p->top = NULL;
 	return;
 
 }
@@ -18,13 +15,13 @@ void init_stack(stack *p){
 
 
 void push_stack(stack *p, entity* et){
-	
-	p->rev[p->count].tag = et.tag;
-	if(et.tag == 0){
-		p->rev[p->count].e.V = et.e.V;
+
+	p->rev[p->count].tag = et->tag;
+	if(et->tag == 0){
+		p->rev[p->count].e.V = et->e.V;
 	}
 	else{
-		p->rev[p->count].e.T = et.e.T;
+		p->rev[p->count].e.T = et->e.T;
 	}
 	p->count++;
 	return;
@@ -35,8 +32,9 @@ void push_PDA(PDA_stack *p, entity *A, node* parent){
 
 	(p->p_element[p->count]).ent.tag = A->tag;
 	(p->p_element[p->count]).parent = parent;
-	if(A.tag == 0){	
+	if(A->tag == 0){	
 		(p->p_element[p->count]).ent.e.V = (A->e).V;
+
 	}
 	else{
 		(p->p_element[p->count]).ent.e.T = (A->e).T;
@@ -52,6 +50,7 @@ entity pop_stack(stack *p){
 
 	if(p->count == 0){
 		printf("Aux stack is empty!\n");
+		exit(0);
 		return temp;
 	}
 	else{
@@ -72,11 +71,12 @@ entity pop_PDA(PDA_stack *p){
 	entity temp;	
 	if(p->count == 0){
 		printf("PDA stack is empty");
+		exit(0);
 		return temp;
 	}
 	else{
 		p->count--;
-		temp.tag = *(p->p_element[p->count]).ent.tag;
+		temp.tag = (p->p_element[p->count]).ent.tag;
 
 		if(temp.tag == 0){
 			temp.e.V = (p->p_element[p->count]).ent.e.V;
@@ -99,21 +99,28 @@ void push_rule(PDA_stack *pd, entity_ll *ent, node* parent){
 		return;
 	}
 	else{
+		entity* temp;
+		entity temp2;
 		while(trav_ent != NULL){
-			push_stack(&aux_stack, &(ent->val));
+			temp = &(trav_ent->val);
+			push_stack(&aux_stack, temp);
 			trav_ent = trav_ent->next;
+			
 		}
+			
+		
 		while(aux_stack.count != 0){
-			push_PDA(pd, pop(&aux_stack), parent);
+			temp2 = pop_stack(&aux_stack);
+			push_PDA(pd, &temp2, parent);
 		}
 		return;
 	}
 }
-
+/*
 //Update!
 char* get_sym_name(entity* ent){
 
-	int tag = ent->flag;
+	int tag = ent->tag;
 
 	if(tag == 0){
 		if(ent->e.V == 0){
@@ -337,27 +344,31 @@ char* get_sym_name(entity* ent){
 	}
 }
 
-
-node* stack_to_tree(node* p_tree, entity* ent, node* parent, tokenStream* tks, entity_ll* rule){
+*/
+node* stack_to_tree(node** p_tree, entity* ent, node* parent, tokenStream* tks, entity_ll* rule){
 
 	node* insertion = (node*)malloc(sizeof(node));
 
-	strcpy(insertion->sym_name, get_sym_name(ent));
-	insertion->t = ent->flag;
-	if(ent->tag === 0){ //non-terminal
-		//insertion->u->internal.g_rule = rule;
+	//strcpy(insertion->sym_name, get_sym_name(ent));
+	insertion->t = ent->tag;
+	if(ent->tag == 0){ //non-terminal
+		insertion->u.internal.g_rule = rule;
 	}
 	else{
-		strcpy(insertion->u->leaf.lexeme, tks->lex);
-		insertion->u->leaf.line_num = tks->line_num;
+		strcpy(insertion->u.leaf.lexeme, tks->lex);
+		insertion->u.leaf.line_num = tks->line_no;
+			
 	}
-
+	
+	insertion->child = NULL;
 	insertion->sibling = NULL;
 
-	if(p_tree == NULL){
-		p_tree = insertion;
+	if(*p_tree == NULL){
+		insertion->depth = 0;
+		*p_tree = insertion;
 	}
 	else{
+		insertion->depth = parent->depth + 1;
 		if(parent->child == NULL){
 			parent->child = insertion;
 			return insertion;
@@ -369,31 +380,34 @@ node* stack_to_tree(node* p_tree, entity* ent, node* parent, tokenStream* tks, e
 			find_loc->sibling = insertion;
 		}
 	}
+
 	return insertion;
 
 }
 
 
 
-void rule_expansion(node* p_tree, Grammar* G, PDA_stack* pd, tokenStream* tk_pos){
-
-	non_term top = pd->p_element[pd->count-1].ent.e.V;
-	term current_t = tk_pos->tname;
+void rule_expansion(node** p_tree, grammar* G, PDA_stack* pd, tokenStream* tk_pos){
 	
-	alpha* buck =   ;	//find the bucket of the non-terminal using hashtable
+	alpha* buck = G->rules[(pd->p_element[pd->count-1].ent.e.V)];
 	alpha* within_buck = buck;
 
-	entity temp; 
-
+	entity temp;
+       	node* parent;	
+	
 	while(within_buck != NULL){
 		//only one rule present or derivable first non-terminal matches or epsilon occurs or last rule
 		//In case of multiple rules, epsilon rule is always the last rule
-		if(within_buck->next == NULL || within_buck->head->val.T == current_t){
-			node* parent = stack_to_tree(p_tree ,&(pd_st->p_element[p->count-1].ent),
-					pd_st->p_element[p->count-1].parent, tks, within_buck->head); 
+		if(within_buck->next == NULL || within_buck->head->val.e.T == tk_pos->token){
+			
+			parent = stack_to_tree(p_tree ,&(pd->p_element[pd->count-1].ent),
+					pd->p_element[pd->count-1].parent, tk_pos, within_buck->head);
+			
 			temp = pop_PDA(pd);
+			
 			push_rule(pd, within_buck->head, parent);
-			return;
+			break;
+		
 		}
 		else{
 			within_buck = within_buck->next;
@@ -401,65 +415,33 @@ void rule_expansion(node* p_tree, Grammar* G, PDA_stack* pd, tokenStream* tk_pos
 	}
 }
 
-
-void createParseTree(node *p_tree, tokenStream* tks, Grammar G){
-
-	PDA_stack pd_st;
-	init_PDA(&pd_st);
-	node *par = NULL;
-
-	//Inititalize the start entity
-	entity start;
-	start.tag = 0;
-	start.V = G.start;
- 
-	push_PDA(&pd_st, &st, par); //push the start symbol entity to the stack. MODIFY and intialize the parent = NULL
-
-	tokenStream* trav_tks = tks; 
-
-	if(trav_tks == NULL){
-		printf("Token Stream is empty");
-		return;
-	}
-
-	entity temp;
-	entity_ll* empty = NULL; //terminals cannot be expanded
-
-	while(trav_tks != NULL){ //Read until the end of the token stream
-
-		//if non-terminal then expand it with a rule
-		if(pd_st->p_element[pd_st->count-1].ent.tag == 0){
-			rule_expansion(p_tree, &G, &pd_st, trav_tks);
-		}
-		else{
-			while((pd_st->p_element[pd_st->count-1].ent.tag == 1 && // pop until top element is terminal and matches with the tks ele
-					pd_st->p_element[pd_st->count-1].ent.e.T == trav_tks->tname) || pd_st->p_element[pd_st->count-1].ent.e.T == EPSILON){
-
-				node * p = stack_to_tree(p_tree,&(pd_st->p_element[pd_st->count-1].ent), 
-						pd_st->p_element[pd_st->count-1].parent, trav_tks, NULL); 
-				temp = pop_PDA(&pt_st); //Pop the PDA element
-
-				if(pd_st->p_element[pd_st->count-1].ent.e.T != EPSILON){
-					trav_tks = trav_tks->next;
-				}
-			}
-			if(pd_st->p_element[pd_st->count-1].ent.tag == 1){ //If top element is a terminal means that it doesn't match
-				printf("Syntax Error! The TokenStream cannot be parsed with the grammar.\n");
-			}
-		}
-	}
-
-	return;
-}
-
-
 void recurseTree(node* tree){
 
 	if(tree == NULL){
 		return;
 	}
-
-	printf("%s\n", tree->sym_name);
+	char* na = "NA";
+	char * todo = "TODO";
+	printf("%s\t%d\t\t%d\t",todo, tree->t, tree->depth);
+	//To print type expression.
+	if(tree->t == 1){
+		printf("%s\t%s\t%d\t%s\n",na, tree->u.leaf.lexeme, tree->u.leaf.line_num, na);
+	}
+	else{
+		printf("\n");
+		//printf("TODO\tNA\tNA\tTODO\n");
+		entity_ll* rule = tree->u.internal.g_rule;
+		/*while(rule != NULL){
+			if(rule->val.tag == 0){
+				printf(" %s ",get_sym_name(rule->val.e.V));
+			}
+			else{
+				printf(" %s ",get_sym_name(rule->val.e.T));
+			}
+			
+			rule = rule->next;
+		}*/
+	}
 
 	recurseTree(tree->child);
 
@@ -474,8 +456,74 @@ void printParseTree(node* tree){
 		printf("Empty Tree");
 		return;
 	}
+	printf("\nSymName\tTerminal?\tDepth\tType\tExpression\tLexName\tLineNum\tGrammar Rule\n");
 
 	recurseTree(tree);
 
+	return;
+}
+
+void createParseTree(node **p_tree, tokenStream* tks, grammar G){
+
+		
+	PDA_stack pd_st;
+	init_PDA(&pd_st);
+	node *par = NULL;
+	entity start;
+	start.tag = 0;
+	start.e.V = START;
+
+	push_PDA(&pd_st, &start, par); //push the start symbol entity to the stack. MODIFY and intialize the parent = NULL
+
+	tokenStream* trav_tks = tks; 
+
+	if(trav_tks == NULL){
+		printf("Token Stream is empty");
+		return;
+	}
+
+	entity temp;
+	entity_ll* empty = NULL; //terminals cannot be expanded
+
+	while(trav_tks != NULL){ //Read until the end of the token stream
+	
+		//if non-terminal then expand it with a rule
+		if(pd_st.p_element[pd_st.count-1].ent.tag == 0){
+			//printf("non-term at the top of the stack\n");
+			rule_expansion(p_tree, &G, &pd_st, trav_tks);
+		}
+		else{
+			while(pd_st.p_element[pd_st.count-1].ent.tag == 1 && // pop until top element is terminal and matches with the tks ele
+					(pd_st.p_element[pd_st.count-1].ent.e.T == trav_tks->token || 
+					pd_st.p_element[pd_st.count-1].ent.e.T == EPSILON)){
+
+				node * p = stack_to_tree(p_tree,&(pd_st.p_element[pd_st.count-1].ent), 
+						pd_st.p_element[pd_st.count-1].parent, trav_tks, NULL); 
+				temp = pop_PDA(&pd_st); //Pop the non-terminal
+				//printf("\n lexeme popped is %s\n", trav_tks->lex);
+
+
+				if(temp.e.T != EPSILON){
+				       	trav_tks = trav_tks->next;
+				}
+			}
+
+			if(pd_st.p_element[pd_st.count-1].ent.tag == 1){ //If top element is a terminal means that it doesn't match
+				printf("\nSyntax Error! The TokenStream cannot be parsed with the grammar.\n");
+				printf("T at top is %d and token is %d and lexeme '%s' \n",
+					       	pd_st.p_element[pd_st.count-1].ent.e.V, trav_tks->token, trav_tks->lex);
+				int i = pd_st.count;
+				while(i>0){
+				printf("Flag is %d and token is %d\n", pd_st.p_element[i-1].ent.tag, 
+						pd_st.p_element[i-1].ent.e.T);
+				i--;
+				}
+				exit(0);
+			}
+		}
+	}
+	printf("Parse tree is created successfully.\n");
+	printf("\n************************");
+	printParseTree(*p_tree);
 	return;
 }
