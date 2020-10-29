@@ -42,16 +42,16 @@ void traverseParseTree(node *tree, typeExpressionTable T ){
 	if(tree == NULL){
 		return;
 	}
-	if(tree-> child->t ==1 && tree->child.T == EPSILON){
+	if((tree-> child->t ==1) && (tree->child->u.leaf.T == EPSILON)){
 		//Change tree typeE to ANY
         tree->typeExp = ANY;
 		//tree->child typeE to ANY
         tree->child->typeExp = ANY;
 	}   
-	if(tree->t ==1 && tree.T == ID){
+	if(tree->t ==1 && tree->u.leaf.T == ID){
 		//Do expression table search
 	}
-	if((tree->t ==1) && (tree.T == ADDOP || tree.T == MULOP || tree.T == B_AND|| tree.T == B_OR)){
+	if((tree->t ==1) && (tree->u.leaf.T == ADDOP || tree->u.leaf.T == MULOP || tree->u.leaf.T == B_AND|| tree->u.leaf.T == B_OR)){
 		node* operand2 = t->sibling;
 		node* operand1;
 		node* parent = t->parent;
@@ -86,26 +86,26 @@ void traverseParseTree(node *tree, typeExpressionTable T ){
 			}
 		}
 		*/
-		if(operand1->child.t == 0){
+		if(operand1->child->t == 0){
 			traverseParseTree(operand1->child, T);
 			//TypeE of operand1->child = opernad1
             operand1->child->typeExp = operand1->typeExp ;
 		}
 		else{
 			//Initialize type of operand1->child using table and make it as operand1's type
-			term opType = (term)get(&(T.expr), operand1.leaf->lexeme); //for operand1 , t = 1
+			term opType = (term)get(&(T.expr), operand1->u.leaf.lexeme); //for operand1 , t = 1
 			operand1->child->typeExp = opType;
 			
 		}
 
-		if(operand2->child.t == 0){
+		if(operand2->child->t == 0){
 			traverseParseTree(operand2->child, T);
 			//TypeE of operand2->child = opernad1
             operand2->child->typeExp = operand1->typeExp;
 		}
 		else{
 			//Initialize type of operand2->child using table and make it as operand2's type
-			term opType = (term)get(&(T.expr), operand2.leaf->lexeme); 
+			term opType = (term)get(&(T.expr), operand2->u.leaf.lexeme); 
 			operand2->child->typeExp = opType;
 		}
 		//Now check if typeE of operand1==operand2, if it is the no error, make typeE = ADDOP ka typeE, else error.
@@ -132,7 +132,7 @@ void recurseTreeForActualTypeChecking(node* tree){
 	}
 
 	node* child = tree->child;
-	TypeE typeE = child->typeE;
+	TypeE typeE = child->typeExp;
 	int error = 0;
 
 	while(child->sibling != NULL){
@@ -159,54 +159,54 @@ void forAssignOp(node *tree, typeExpressionTable T){
 	if(tree == NULL){
 		return;
 	}
-	if(tree->t ==1 && tree.T == ASSIGNOP){
+	if(tree->t ==1 && tree->u.leaf.T == ASSIGNOP){
 		node* op1 = tree->child;
 		node* op2 = op1;
          
-		while(op2.T != ASSIGNOP){
+		while(op2->u.leaf.T != ASSIGNOP){
 			op2 = op2->sibling;
 		}
 
 		TypeE lhs = INTEGER_TYPE;//(INT IS EX HERE)//TypeE for LHS using op1->child in table.
 		op2 = op2->sibling;
-		TypeE rhs = op2->typeE;
+		TypeE rhs = op2->typeExp;
 		int error = 0;
-		while(op2->sibling.T != SEMI_C){
-			if(op2->typeE == rhs || op2->typeE == ANY){
+		while(op2->sibling->u.leaf.T != SEMI_C){
+			if(op2->typeExp == rhs || op2->typeExp == ANY){
 				op2 = op2->sibling;
 			}
 			else{
-				tree->typeE = ERROR;
+				tree->typeExp = ERROR;
 				error = 1;
 				break;
 			}
 		}
 		if(error == 0){
-			tree->typeE = lhs;
+			tree->typeExp = lhs;
 		}
 	}
 	else if(tree->sym_name == ASSIGNMENTS){
 		node* op1 = tree->child;
 		node* op2 = op1;
-		while(op2.T != ASSIGNOP){
+		while(op2->u.leaf.T != ASSIGNOP){
 			op2 = op2->sibling;
 		}
 		TypeE lhs = INTEGER_TYPE;//(INT IS EX HERE)//TypeE for LHS using op1->child in table.
 		op2 = op2->sibling;
-		TypeE rhs = op2->typeE;
+		TypeE rhs = op2->typeExp;
 		int error = 0;
-		while(op2->sibling.T != SEMI_C){
-			if(op2->typeE == rhs || op2->typeE == ANY){
+		while(op2->sibling->u.leaf.T != SEMI_C){
+			if(op2->typeExp == rhs || op2->typeExp == ANY){
 				op2 = op2->sibling;
 			}
 			else{
-				tree->typeE = ERROR;
+				tree->typeExp = ERROR;
 				error = 1;
 				break;
 			}
 		}
 		if(error == 0){
-			tree->typeE = lhs;
+			tree->typeExp = lhs;
 		}
 	}
 }
