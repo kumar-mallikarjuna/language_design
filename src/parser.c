@@ -382,6 +382,7 @@ node* stack_to_tree(node** p_tree, entity* ent, node* parent, tokenStream* tks, 
 
 	strcpy(insertion->sym_name, symbol);
 	insertion->t = ent->tag;
+	insertion->par = parent;
 	if(ent->tag == 0){	//non-terminal
 		insertion->u.internal.V = ent->e.V;
 		get_grule(insertion->u.internal.g_rule, ent, rule);
