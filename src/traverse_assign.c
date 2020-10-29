@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "grammar.h"
 #include "traverse.h"
-//#include "parser.h" //UNCOMMENT AFTER PUTTING IN RIGHT FOLDER
+#include "parser.h" //UNCOMMENT AFTER PUTTING IN RIGHT FOLDER
 /*
 typedef struct bucket_node_t {
 	char key[64];
@@ -39,28 +39,23 @@ typedef enum{
 
 //FOR ADDOP after calling this we do for assignop, Pass <p_assignment> as tree pointer here
 void traverseParseTree(node *tree, typeExpressionTable T ){
-
 	if(tree == NULL){
 		return;
 	}
-    
 	if(tree-> child->t ==1 && tree->child.T == EPSILON){
 		//Change tree typeE to ANY
         tree->typeExp = ANY;
 		//tree->child typeE to ANY
         tree->child->typeExp = ANY;
 	}   
-
 	if(tree->t ==1 && tree.T == ID){
 		//Do expression table search
 	}
 	if((tree->t ==1) && (tree.T == ADDOP || tree.T == MULOP || tree.T == B_AND|| tree.T == B_OR)){
 		node* operand2 = t->sibling;
 		node* operand1;
-
 		node* parent = t->parent;
 		node* operand1 = parent->parent->child;
-
 		/*
 		while(operand1->sibling != t){
 			operand1 = operand1->sibling;
@@ -98,19 +93,24 @@ void traverseParseTree(node *tree, typeExpressionTable T ){
 		}
 		else{
 			//Initialize type of operand1->child using table and make it as operand1's type
+			term opType = (term)get(&(T.expr), operand1.leaf->lexeme); //for operand1 , t = 1
+			operand1->child->typeExp = opType;
+			
 		}
 
 		if(operand2->child.t == 0){
 			traverseParseTree(operand2->child, T);
 			//TypeE of operand2->child = opernad1
-            operand2->child->typeExp = ;
+            operand2->child->typeExp = operand1->typeExp;
 		}
 		else{
 			//Initialize type of operand2->child using table and make it as operand2's type
+			term opType = (term)get(&(T.expr), operand2.leaf->lexeme); 
+			operand2->child->typeExp = opType;
 		}
 		//Now check if typeE of operand1==operand2, if it is the no error, make typeE = ADDOP ka typeE, else error.
         if(operand1->typeExp == operand2->typeExp){
-            operand1->typeExp == ANY
+            operand1->typeExp == ANY;
         }
         else{
             //error 
