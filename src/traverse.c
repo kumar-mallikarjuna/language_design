@@ -25,7 +25,7 @@ void print_err_d(int line_num,
 		int depth,
 		char *message)
 {
-	printf("%12d %20s %20s %20s %20s %20s %20s %12d %30s",
+	printf("%12d %20s %s %s %s %s %s %12d %30s\n",
 		line_num, "declaration", "***", "***", "***",
 		"***", "***", depth, message);
 }
@@ -33,34 +33,49 @@ void print_err_d(int line_num,
 void printTypeExpressionTable(typeExpressionTable *T){
 	id_list *ptr = T->ids;
 
-	char texp_s[1000] = "<";
-
 	while(ptr){
+		char texp_s[1000] = "<";
+
 		type_exp *texp = (type_exp*) get(&(T->expr), ptr->id);
 		if(texp->texp_type == PRIMITVE){
-			if(texp->prim_exp.basic_el_type == INTEGER_T)
-				printf("%20s\t%d\t%6s\t\n", ptr->id, texp->texp_type, "NA");
-			else if(texp->prim_exp.basic_el_type == REAL_T)
-				printf("%20s\t%d\t%6s\t\n", ptr->id, texp->texp_type, "NA");
-			else if(texp->prim_exp.basic_el_type == BOOLEAN_T)
-				printf("%20s\t%d\t%6s\t\n", ptr->id, texp->texp_type, "NA");
+			if(texp->prim_exp.basic_el_type == INTEGER_T){
+				printf("%20s\t%d\t%6s\t", ptr->id, texp->texp_type, "NA");
+				strcat(texp_s, "type=integer>");
+			}else if(texp->prim_exp.basic_el_type == REAL_T){
+				printf("%20s\t%d\t%6s\t", ptr->id, texp->texp_type, "NA");
+				strcat(texp_s, "type=real>");
+			}else if(texp->prim_exp.basic_el_type == BOOLEAN_T){
+				printf("%20s\t%d\t%6s\t", ptr->id, texp->texp_type, "NA");
+				strcat(texp_s, "type=boolean>");
+			}
 		}else if(texp->texp_type == RECTANGULAR_ARRAY){
+			strcat(texp_s, "type=rectangularArray, dimensions=");
 			int dynamic = 0;
-
+			int dim = 0;
+			
+			char rem[1000] = "";
 			range *rptr = texp->rect_arr_exp.ranges;
 			while(rptr){
+				dim++;
+				sprintf(rem, "%s, range_R%d=(%s,%s)", rem, dim, rptr->a, rptr->b);
 				if(isdigit((rptr->a)[0]) == 0 || isdigit((rptr->b)[0]) == 0){
 					dynamic = 1;
-					break;
 				}
 
 				rptr = rptr->next;
 			}
 
-			printf("%20s\t%d\t%6s\t\n", ptr->id, texp->texp_type, dynamic ? "dynamic" : "static");
+			char dim_s[32];
+			sprintf(dim_s, "%d", dim);
+			strcat(texp_s, dim_s);
+			strcat(texp_s, rem);
+			strcat(texp_s, ", basicElementType=integer>");
+			printf("%20s\t%d\t%6s\t", ptr->id, texp->texp_type, dynamic ? "dynamic" : "static");
 		}else if(texp->texp_type == JAGGED_ARRAY){
-			printf("%20s\t%d\t%6s\t\n", ptr->id, texp->texp_type, "NA");
+			printf("%20s\t%d\t%6s\t", ptr->id, texp->texp_type, "NA");
 		}
+
+		printf("%s\n", texp_s);
 
 		ptr = ptr->next;
 	}
@@ -165,7 +180,7 @@ void traverseParseTree(node *t, typeExpressionTable *T){
 
 			node *dims = type_n->child->sibling->sibling; // SQ_OP
 			dims = dims->sibling; // NUM
-
+	
 			head->a = strdup(dims->u.leaf.lexeme);
 			dims = dims->sibling->sibling;
 			head->b = strdup(dims->u.leaf.lexeme);
@@ -211,9 +226,9 @@ void traverseParseTree(node *t, typeExpressionTable *T){
 					ptry->next = tmp;
 					ptry = tmp;
 				}
-
+	
 				while(
-					jagg_inis->t != 1 ||
+					jagg_inis->t != 0 ||
 					jagg_inis->u.internal.V != JAGG_ARRAY_NUMS
 				){
 					jagg_inis = jagg_inis->sibling;
@@ -281,8 +296,8 @@ void traverseParseTree(node *t, typeExpressionTable *T){
 					type_rec->err = 1;
 
 					print_err_d(
-						nums->u.leaf.line_num,
-						nums->depth,
+						jagg_inis->u.leaf.line_num,
+						jagg_inis->depth,
 						"2D JA size mismatch"
 					);
 					break;
@@ -295,12 +310,17 @@ void traverseParseTree(node *t, typeExpressionTable *T){
 					type_rec->err = 1;
 
 					print_err_d(
-						nums->u.leaf.line_num,
-						nums->depth,
+						jagg_inis->u.leaf.line_num,
+						jagg_inis->depth,
 						"3D JA size mismatch"
 					);
 					break;
 				}
+				jagg_inis = jagg_inis->sibling->sibling;
+				printf("HERE\tTag: %d, T: %d, V: %d, leaf.lexeme: %s\n", jagg_inis->t,
+					jagg_inis->u.leaf.T,
+					jagg_inis->u.internal.V,
+					jagg_inis->u.leaf.lexeme);
 			}
 		}else{
 			type_rec->texp_type = PRIMITVE;
