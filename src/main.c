@@ -3,7 +3,6 @@
 #include "grammar.h"
 #include "tokenStream.h"
 #include "parser.h"
-
 int main(int argc, char *argv[]){
 
 	const char *g_loc = argv[1];
@@ -14,6 +13,8 @@ int main(int argc, char *argv[]){
 	printf("Reading grammar (%s)...\n", g_loc);
 	readGrammar(g_loc, &G);
 	//printf(" %d\n ", G.rules[ASSIGNMENT]->head->val.e.T);
+	// Parse grammar
+	readGrammar(g_loc, &G);
 	printf("Reading source (%s)...\n", s_loc);
 	// Parse source
 	tokenStream* s = NULL;
