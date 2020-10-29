@@ -52,9 +52,9 @@ void traverseParseTree(node *tree, typeExpressionTable T ){
 		//Do expression table search
 	}
 	if((tree->t ==1) && (tree->u.leaf.T == ADDOP || tree->u.leaf.T == MULOP || tree->u.leaf.T == B_AND|| tree->u.leaf.T == B_OR)){
-		node* operand2 = t->sibling;
+		node* operand2 = tree->sibling;
 		node* operand1;
-		node* parent = t->parent;
+		node* parent = tree->parent;
 		node* operand1 = parent->parent->child;
 		/*
 		while(operand1->sibling != t){
