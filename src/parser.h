@@ -19,7 +19,7 @@ typedef struct leaf_val{
 typedef struct internal_val{
 	non_term V;
 	//type_exp type;
-	entity_ll* g_rule;
+	char g_rule[100];
 } internal_val;
 
 
@@ -58,5 +58,6 @@ typedef struct PDA_stack{
 }PDA_stack;
 
 void createParseTree(node **p_tree, tokenStream* tks, grammar G);	
+
 
 #endif
