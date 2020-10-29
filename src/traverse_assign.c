@@ -1,92 +1,67 @@
 //line 37 strcomp
-void arith_type(node* t, errorlist err){ //fix error list
-	if(t == NULL) return;
+#include <stdio.h>
+#include <stdlib.h>
+#include "grammar.h"
+#include "traverse.h"
+//#include "parser.h" //UNCOMMENT AFTER PUTTING IN RIGHT FOLDER
+/*
+typedef struct bucket_node_t {
+	char key[64];
+	void *val;
+	struct bucket_node_t *next;
+} bucket_node;
 
-	if((strcmp(t -> sym_name, "ADDOP")==0 )||(strcmp(t -> sym_name, "MULOP")==0 )){
-		node* childd = t->child;
-		node* t1,t2;
-		t1 = childd -> sibling; t2 = t1 -> sibling;
-		term op = childd->leaf.T; // FIX condition
+typedef struct hashmap_t {
+	bucket_node **buckets;
+	size_t capacity;
+} hashmap;
 
-		arith_type(t1, err);
-		arith_type(t2 , err);
+typedef struct id_list_t {
+	char id[32];
+	struct id_list_t *next;
+} id_list;
 
-		if(t1->nodeErr ==1 || t2->nodeErr ==1) { //1 denotes error
-			t ->nodeErr = 1;
-			return;
-		}
-		if((t1->t ==1 && t1->leaf.T == INTEGER) && (t2->t ==1 && t2->leaf.T == INTEGER) 
-			&& (op = MULOP || op == ADDOP)){
-				t -> nodeErr = 0 ; //type of node
-				return;
-			}
-		
-		if((t1->t ==1 && t1->leaf.T == REAL) && (t2->t ==1 && t2->leaf.T == REAL) 
-			&& (op = MULOP || op == ADDOP)){
-				t -> nodeErr = 0 ;
-				return;
-	
-			}
+typedef struct {
+	hashmap expr;
+	id_list *ids;
+	size_t num_ids;
+} typeExpressionTable;
 
-		if((t1->t ==1 && t1->leaf.T == INTEGER) && (t2->t ==1 && t2->leaf.T == REAL) 
-			&& (op = MULOP || op == ADDOP)){
-				t -> nodeErr = 0 ; //type of node
-				return;
-			}
+*/
+typedef enum{
+	ANY,
+	INTEGER_TYPE,
+	REAL_TYPE,
+	BOOLEAN_TYPE,
+	ERROR,
+	NA
+}TypeE;
 
-		if((t1->t ==1 && t1->leaf.T == REAL) && (t2->t ==1 && t2->leaf.T == INTEGER) 
-			&& (op = MULOP || op == ADDOP)){
-				t -> nodeErr = 0 ; //type of node
-				return;
-			}
-			
-	}
-	//print error message
-		return;
-	
-}
+//FOR ADDOP after calling this we do for assignop, Pass <p_assignment> as tree pointer here
+void traverseParseTree(node *tree, typeExpressionTable T ){
 
-void bool_type(node* t, errorlist err){
-	if(t == NULL) return;
-}
-
-
-void assn_traverse(parseTree *t, typeExpressionTable *T){
-	node* assn; //init?
-
-	while (assn != NULL){
-		if(strcmp(assn->sym_name, "<body>")==0){
-			break;
-		}
-		assn = assn-> sibling;
-	}
-	//body -> p_assignment
-	assn = assn -> child->sibling; 
-	//p_assignment -> assignment
-	assn = assn -> child; 
-
-	while( assn != NULL){
-		//int check = dfs(assn);
-		//if(check == 0 ){//type mismatch
-		//}
-	}
-
-}
-
-/************************* 2nd implmentation *****************/
-//FOR ADDOP after calling this we do for assignopx
-void traverseParseTree(parseTree *t, typeExpressionTable T ){
-	if(t==NULL){
+	if(tree == NULL){
 		return;
 	}
-	if(t->sym_name == "ADDOP" || t->sym_name == "MULOP" || t->sym_name == "B_OR" || t->sym_name == "B_AND"){
+    
+	if(tree-> child->t ==1 && tree->child.T == EPSILON){
+		//Change tree typeE to ANY
+        tree->typeExp = ANY;
+		//tree->child typeE to ANY
+        tree->child->typeExp = ANY;
+	}   
 
-		node * operand2 = t->sibling;
-		node * operand1;
+	if(tree->t ==1 && tree.T == ID){
+		//Do expression table search
+	}
+	if((tree->t ==1) && (tree.T == ADDOP || tree.T == MULOP || tree.T == B_AND|| tree.T == B_OR)){
+		node* operand2 = t->sibling;
+		node* operand1;
 
 		node* parent = t->parent;
-		node* operand1 = parent->child;
+		node* operand1 = parent->parent->child;
 
+		/*
 		while(operand1->sibling != t){
 			operand1 = operand1->sibling;
 		}
@@ -115,26 +90,123 @@ void traverseParseTree(parseTree *t, typeExpressionTable T ){
 				operand1 = operand1->sibling;
 			}
 		}
-
-		if(operand1->child->t == 0){
-			traverseParseTree(operand1->child->t, T);
+		*/
+		if(operand1->child.t == 0){
+			traverseParseTree(operand1->child, T);
 			//TypeE of operand1->child = opernad1
+            operand1->child->typeExp = operand1->typeExp ;
 		}
 		else{
 			//Initialize type of operand1->child using table and make it as operand1's type
 		}
 
-		if(operand2->child->t == 0){
-			traverseParseTree(operand2->child->t, T);
+		if(operand2->child.t == 0){
+			traverseParseTree(operand2->child, T);
 			//TypeE of operand2->child = opernad1
+            operand2->child->typeExp = ;
 		}
 		else{
 			//Initialize type of operand2->child using table and make it as operand2's type
 		}
 		//Now check if typeE of operand1==operand2, if it is the no error, make typeE = ADDOP ka typeE, else error.
-
+        if(operand1->typeExp == operand2->typeExp){
+            operand1->typeExp == ANY
+        }
+        else{
+            //error 
+            print_err_a(); // fill
+        }
 	}
-	recurseTree(t->child);
-	recurseTree(t->sibling);
+	recurseTree(tree->child);
+	recurseTree(tree->sibling);
+}
+void recurseTreeForActualTypeChecking(node* tree){
+	if(tree == NULL){
+		return;
+	}
+	recurseTree(tree->child);
+	recurseTree(tree->sibling);
 
+	if(tree->child == NULL){
+		return;
+	}
+
+	node* child = tree->child;
+	TypeE typeE = child->typeE;
+	int error = 0;
+
+	while(child->sibling != NULL){
+		if(child->typeExp == NA){
+			return;
+		}
+
+		if(typeE == child->typeExp || child->typeExp == ANY){
+			child = child->sibling;
+		}
+		else{
+			tree->typeExp = ERROR;
+			error = 1;
+			break;
+		}
+	}
+	if(error == 0){
+		tree->typeExp = typeE;
+	}
+}
+
+//Give at p_assignment, calculate for p_assignment, body, start and others above it using it's children in another fucntion, similarly.
+void forAssignOp(node *tree, typeExpressionTable T){
+	if(tree == NULL){
+		return;
+	}
+	if(tree->t ==1 && tree.T == ASSIGNOP){
+		node* op1 = tree->child;
+		node* op2 = op1;
+         
+		while(op2.T != ASSIGNOP){
+			op2 = op2->sibling;
+		}
+
+		TypeE lhs = INTEGER_TYPE;//(INT IS EX HERE)//TypeE for LHS using op1->child in table.
+		op2 = op2->sibling;
+		TypeE rhs = op2->typeE;
+		int error = 0;
+		while(op2->sibling.T != SEMI_C){
+			if(op2->typeE == rhs || op2->typeE == ANY){
+				op2 = op2->sibling;
+			}
+			else{
+				tree->typeE = ERROR;
+				error = 1;
+				break;
+			}
+		}
+		if(error == 0){
+			tree->typeE = lhs;
+		}
+	}
+	else if(tree->sym_name == ASSIGNMENTS){
+		node* op1 = tree->child;
+		node* op2 = op1;
+		while(op2.T != ASSIGNOP){
+			op2 = op2->sibling;
+		}
+		TypeE lhs = INTEGER_TYPE;//(INT IS EX HERE)//TypeE for LHS using op1->child in table.
+		op2 = op2->sibling;
+		TypeE rhs = op2->typeE;
+		int error = 0;
+		while(op2->sibling.T != SEMI_C){
+			if(op2->typeE == rhs || op2->typeE == ANY){
+				op2 = op2->sibling;
+			}
+			else{
+				tree->typeE = ERROR;
+				error = 1;
+				break;
+			}
+		}
+		if(error == 0){
+			tree->typeE = lhs;
+		}
+	}
 }
