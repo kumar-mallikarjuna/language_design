@@ -10,73 +10,99 @@ int checknum(char* ip){
 }
 
 term gettok(char* ip){ //return enum term
-    if(strcmp(ip,"program"))
+    if(strcmp(ip,"program")==0)
         return PROGRAM;
-    else  if(strcmp(ip,"declare"))  return DECLARE;
-    else if(strcmp(ip,"list"))  return LIST;
-    else if(strcmp(ip,"of"))    return OF;
-    else if(strcmp(ip,"variables")) return VARIABLES;
-    else if(strcmp(ip,"array")) return ARRAY;
-    else if(strcmp(ip,"size"))  return SIZE;
-    else if(strcmp(ip,"values"))    return VALUES;
-    else if(strcmp(ip,"jagged"))    return JAGGED;
-    else if(strcmp(ip,"of"))    return OF;
-    else if(strcmp(ip,"integer"))   return INTEGER;
-    else if(strcmp(ip,"real"))  return REAL;
-    else if(strcmp(ip,"boolean")) return BOOLEAN; 
-    else if(strcmp(ip,"+")) return ADDOP;
-    else if(strcmp(ip,"-")) return ADDOP;
-    else if(strcmp(ip,"*")) return MULOP;
-    else if(strcmp(ip,"/")) return MULOP;
-    else if(strcmp(ip,":")) return COLON;
-    else if(strcmp(ip,";")) return SEMI_C;
-    else if(strcmp(ip,"(")) return PAR_OP;
-    else if(strcmp(ip,")")) return PAR_CL;
-    else if(strcmp(ip,"{")) return CURL_OP;
-    else if(strcmp(ip,"}")) return CURL_CL;
-    else if(strcmp(ip,"[")) return SQ_OP;
-    else if(strcmp(ip,"]")) return SQ_CL;
-    else if(strcmp(ip,"=")) return ASSIGNOP;
-    else if(strcmp(ip,"..")) return ELL;
-    else if(strcmp(ip,"R1")) return R1_T;
-    else if(strcmp(ip,"|||")) return B_OR;
-    else if(strcmp(ip,"&&&")) return B_AND;
+    else  if(strcmp(ip,"declare")==0)  return DECLARE;
+    else if(strcmp(ip,"list")==0)  return LIST;
+    else if(strcmp(ip,"of")==0)    return OF;
+    else if(strcmp(ip,"variables")==0) return VARIABLES;
+    else if(strcmp(ip,"array")==0) return ARRAY;
+    else if(strcmp(ip,"size")==0)  return SIZE;
+    else if(strcmp(ip,"values")==0)    return VALUES;
+    else if(strcmp(ip,"jagged")==0)    return JAGGED;
+    else if(strcmp(ip,"of")==0)    return OF;
+    else if(strcmp(ip,"integer")==0)   return INTEGER;
+    else if(strcmp(ip,"real")==0)  return REAL;
+    else if(strcmp(ip,"boolean")==0) return BOOLEAN; 
+    else if(strcmp(ip,"+")==0) return ADDOP;
+    else if(strcmp(ip,"-")==0) return ADDOP;
+    else if(strcmp(ip,"*")==0) return MULOP;
+    else if(strcmp(ip,"/")==0) return MULOP;
+    else if(strcmp(ip,":")==0) return COLON;
+    else if(strcmp(ip,";")==0) return SEMI_C;
+    else if(strcmp(ip,"(")==0) return PAR_OP;
+    else if(strcmp(ip,")")==0) return PAR_CL;
+    else if(strcmp(ip,"{")==0) return CURL_OP;
+    else if(strcmp(ip,"}")==0) return CURL_CL;
+    else if(strcmp(ip,"[")==0) return SQ_OP;
+    else if(strcmp(ip,"]")==0) return SQ_CL;
+    else if(strcmp(ip,"=")==0) return ASSIGNOP;
+    else if(strcmp(ip,"..")==0) return ELL;
+    else if(strcmp(ip,"R1")==0) return R1_T;
+    else if(strcmp(ip,"|||")==0) return B_OR;
+    else if(strcmp(ip,"&&&")==0) return B_AND;
     else if(checknum(ip)== 1) return NUM;
     else return ID;
 }
 
-void push(tokenStream** head, char tname[50],char lex[50], int line_no){
-    tokenStream* newNode = (tokenStream*)malloc(sizeof(tokenStream));
-    strcpy(newNode->lex, lex);
-    newNode->token = gettok(tname);
-    newNode->line_no = line_no;
-    newNode->next = *head;
-    *head = newNode;
+void push(tokenStream** head, char tname[50],char lexeme[50], int line_num){
+    if(*head == NULL){
+	tokenStream* newNode = (tokenStream*)malloc(sizeof(tokenStream));
+	strcpy(newNode->lex, lexeme);
+	newNode->token = gettok(tname);
+	newNode->line_no = line_num;
+	*head = newNode;
+	return;
+	}
+	tokenStream* newNode = (tokenStream*)malloc(sizeof(tokenStream));
+	strcpy(newNode->lex, lexeme);
+	newNode->token = gettok(tname);
+	newNode->line_no = line_num;
+	tokenStream * trav_tks = *head;
+	while(trav_tks->next != NULL) trav_tks = trav_tks->next;
+	trav_tks->next = newNode;
+	
 }
 
-void tokeniseSourcecode( char *s_loc, tokenStream *s){ // s_loc denotes “sourcecode.txt” as the input 
-    //FILE *fptr = fopen(s_loc, "r");
-    FILE *fptr = fopen("t1.txt", "r");
-    char c, *lin = NULL, buff[1000] = "";
-    int lcount =0;
+void printstream( tokenStream *s){
+ 
+    while(s != NULL){
+   
+        printf("%s %d %d\n",s->lex,s->line_no, s->token);
+        s= s->next;
+    }
+}
+
+void tokeniseSourcecode( char *s_loc, tokenStream **s){ // s_loc denotes “sourcecode.txt” as the input 
+    *s = NULL;
+    FILE *fptr = fopen(s_loc, "r");
+    //FILE *fptr = fopen("tfile.txt", "r");
+    char c, *lin, buff[1000] = "";
+    int lcount = 0;
     int rline; //read lines with fscanf
     if(fptr == NULL)   printf("File not found\n");
     else{
-        //tokenStream* head = NULL;
-	
+        
+	ssize_t read_sz;
 	size_t lin_sz;
 	char ch;
-        while(getline(&lin, &lin_sz, fptr) != -1){
+        while((read_sz = getline(&lin, &lin_sz, fptr)) != -1){
+	if(lin[read_sz-1] == '\n'){
+		lin[read_sz-1] = '\0';
+		lin_sz--;
+	}
         // line number
         lcount++;
-	char *token = strtok(lin, " \t");
+
+	// Tokenizing on POSIX whitespaces
+	char *token = strtok(lin, " \t\r\n\f\v");
 	while(token){
         	//push(&head, buff, buff , lcount);
 
 		int skip = 1;
 		char *ptr = token;
 		while(*ptr){
-			if(*ptr != ' ' && *ptr != '\t' && *ptr != '\n'){
+			if(*ptr != ' ' && *ptr != '\t' && *ptr != '\r' && *ptr != '\n' && *ptr != '\f' && *ptr != '\v'){
 				skip = 0;
 				break;
 			}
@@ -86,19 +112,14 @@ void tokeniseSourcecode( char *s_loc, tokenStream *s){ // s_loc denotes “sourc
 
 		if(skip == 0){
         		strcat(buff,token);
-        		push(&s, buff, buff , lcount);
-			printf("%d%s\n", lcount, token);
+        		push(s, buff, buff , lcount);
+			strcpy(buff, "");
 		}
 
-		token = strtok(NULL, " ");
+		token = strtok(NULL, " \t\r\n\f\v");
 	}
     }
     }
-}
-
-void printstream( tokenStream *s){
-    while(s->next != NULL){
-        printf("%d %s %d",s->token,s->lex,s->line_no);
-        s= s->next;
-    }
+//	printstream(s);
+        return;
 }
