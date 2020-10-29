@@ -27,6 +27,7 @@ typedef struct node{
 	char sym_name[50];  //remove later
 	int depth;
 	int t;  //terminal check
+	struct node* par;
 	union {
 		internal_val internal;
 		leaf_val leaf;
