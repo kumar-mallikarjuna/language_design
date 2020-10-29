@@ -1,8 +1,9 @@
-#include <stdio.h>
-
 #include "grammar.h"
 #include "tokenStream.h"
 #include "parser.h"
+
+#include <stdio.h>
+
 int main(int argc, char *argv[]){
 
 	const char *g_loc = argv[1];
@@ -24,5 +25,6 @@ int main(int argc, char *argv[]){
 	node* p_tree = NULL;
 	createParseTree(&p_tree, s, G);
 	printf("Parse tree created!");
+
 	return 0;
 }
