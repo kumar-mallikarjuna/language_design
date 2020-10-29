@@ -355,9 +355,13 @@ node* stack_to_tree(node** p_tree, entity* ent, node* parent, tokenStream* tks, 
 		insertion->u.internal.g_rule = rule;
 	}
 	else{
-		strcpy(insertion->u.leaf.lexeme, tks->lex);
-		insertion->u.leaf.line_num = tks->line_no;
-			
+		if(ent->e.T == EPSILON){
+			strcpy(insertion->u.leaf.lexeme, "EPSILON");
+		}
+		else{
+			strcpy(insertion->u.leaf.lexeme, tks->lex);
+			insertion->u.leaf.line_num = tks->line_no;
+		}	
 	}
 	
 	insertion->child = NULL;
