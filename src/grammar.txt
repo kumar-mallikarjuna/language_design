@@ -45,7 +45,7 @@
 <term> NUM <term_2>
 <term> ID <is_array> <term_2>
 <term_2> EPSILON
-<term_2> MUL_OP <factor> <term_2>
+<term_2> MULOP <factor> <term_2>
 <term_2> B_AND <factor> <term_2>
 <factor> NUM
 <factor> ID <is_array>
