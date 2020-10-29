@@ -1,6 +1,7 @@
 #include "grammar.h"
 #include "tokenStream.h"
 #include "parser.h"
+#include "traverse.h"
 
 #include <stdio.h>
 
@@ -25,7 +26,8 @@ int main(int argc, char *argv[]){
 	node* p_tree = NULL;
 	createParseTree(&p_tree, s, G);
 	printf("Parse tree created!");
-	printf("HERE%d\n", G.rules[START]->head->val.e.T);
+	typeExpressionTable T;
+	traverseParseTree(p_tree, &T);
 
 	return 0;
 }

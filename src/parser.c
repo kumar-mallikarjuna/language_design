@@ -116,111 +116,121 @@ void push_rule(PDA_stack *pd, entity_ll *ent, node* parent){
 		return;
 	}
 }
-/*
-//Update!
+
+
 char* get_sym_name(entity* ent){
 
 	int tag = ent->tag;
 
 	if(tag == 0){
 		if(ent->e.V == 0){
-			char * A = "START";
+			char * A = "start";
 			return A;
 		}
 		else if(ent->e.V == 1){
-			char * A = "BODY";
+			char * A = "body";
 			return A;
 		}
 		else if(ent->e.V == 2){
-			char * A = "DECLARATION";
+			char * A = "p_declaration";
 			return A;
 		}
 		else if(ent->e.V == 3){
-			char * A = "DECLARATIONS";
+			char * A = "p_assignment";
 			return A;
 		}
 		else if(ent->e.V == 4){
-			char * A = "IDS";
+			char * A = "declaration";
 			return A;
 		}
 		else if(ent->e.V == 5){
-			char * A = "TYPE";
+			char * A = "s_l_declare";
 			return A;
 		}
 		else if(ent->e.V == 6){
-			char * A = "REC_ARRAY";
+			char * A = "declarations";
 			return A;
 		}
 		else if(ent->e.V == 7){
-			char * A = "DIMS";
+			char* A = "ids";
 			return A;
 		}
+
 		else if(ent->e.V == 8){
-			char * A = "DIM";
+			char* A = "type";
 			return A;
 		}
+	
 		else if(ent->e.V == 9){
-			char * A = "IDX";
+			char * A = "dims";
 			return A;
 		}
 		else if(ent->e.V == 10){
-			char * A = "JAG_ARRAY";
+			char * A = "idx";
 			return A;
 		}
 		else if(ent->e.V == 11){
-			char * A = "JAGG_INIS";
+			char * A = "jagg_inis";
 			return A;
 		}
 		else if(ent->e.V == 12){
-			char * A = "JAGG_ARRAY_NUMS";
+			char * A = "s_or_m_jagg";
 			return A;
 		}
 		else if(ent->e.V == 13){
-			char * A = "ARRAY_L";
+			char * A = "jagg_array_nums";
 			return A;
 		}
 		else if(ent->e.V == 14){
-			char * A = "OP_DIM";
+			char * A = "array_l";
 			return A;
 		}
 		else if(ent->e.V == 15){
-			char * A = "ASSIGNMENTS";
+			char * A = "op_dim";
 			return A;
 		}
 		else if(ent->e.V == 16){
-			char * A = "ASSIGNMENT";
+			char * A = "assignment";
 			return A;
 		}
 		else if(ent->e.V == 17){
-			char * A = "VARIABLE";
+			char * A = "assignments";
 			return A;
 		}
 		else if(ent->e.V == 18){
-			char * A = "INT_LIST";
+			char * A = "is_array";
 			return A;
 		}
 		else if(ent->e.V == 19){
-			char * A = "A_EXP";
+			char * A = "is_array";
 			return A;
 		}
-		if(ent->e.V == 20){
-			char * A = "TERM";
+		else if(ent->e.V == 20){
+			char * A = "ele";
 			return A;
 		}
-		if(ent->e.V == 21){
-			char * A = "FACTOR";
+		else if(ent->e.V == 21){
+			char * A = "exp";
 			return A;
 		}
 		if(ent->e.V == 22){
-			char * A = "B_EXP";
+			char * A = "exp_2";
 			return A;
 		}
 		if(ent->e.V == 23){
-			char * A = "B_TERM";
+			char * A = "term";
+			return A;
+		}
+		if(ent->e.V == 24){
+			char * A = "term_2";
+			return A;
+		}
+		if(ent->e.V == 25){
+			char * A = "factor";
 			return A;
 		}
 	}
-	else if(tag == 0){
+	else if(tag == 1){
 		if(ent->e.T == 0){
 			char * A = "PROGRAM";
 			return A;
@@ -230,7 +240,7 @@ char* get_sym_name(entity* ent){
 			return A;
 		}
 		if(ent->e.T == 2){
-			char * A = "PAR_CL";
+			char * A = "PAR_OP";
 			return A;
 		}
 		if(ent->e.T == 3){
@@ -342,26 +352,50 @@ char* get_sym_name(entity* ent){
 			return A;
 		}
 	}
+	else{
+		printf("Error in enum to str");
+		exit(0);
+	}
 }
 
-*/
+void get_grule(char* f, entity* ent, entity_ll* rule){
+	
+        char * sym = get_sym_name(ent);
+	char * arrow = "->";	
+	strcpy(f, sym);
+	strcat(f, arrow);
+	entity_ll* trav = rule;
+	while(trav != NULL){
+		strcat(f, " ");
+		strcat(f, get_sym_name(&(trav->val)));
+		trav = trav->next;
+	}
+	return;
+}
+	
+	
+
 node* stack_to_tree(node** p_tree, entity* ent, node* parent, tokenStream* tks, entity_ll* rule){
 
 	node* insertion = (node*)malloc(sizeof(node));
+	char* symbol = get_sym_name(ent);
 
-	//strcpy(insertion->sym_name, get_sym_name(ent));
+	strcpy(insertion->sym_name, symbol);
 	insertion->t = ent->tag;
-	if(ent->tag == 0){ //non-terminal
-		insertion->u.internal.g_rule = rule;
+	if(ent->tag == 0){	//non-terminal
+		insertion->u.internal.V = ent->e.V;
+		get_grule(insertion->u.internal.g_rule, ent, rule);
 	}
 	else{
+		insertion->u.leaf.T = ent->e.T;
 		if(ent->e.T == EPSILON){
 			strcpy(insertion->u.leaf.lexeme, "EPSILON");
 		}
 		else{
-			strcpy(insertion->u.leaf.lexeme, tks->lex);
-			insertion->u.leaf.line_num = tks->line_no;
-		}	
+		strcpy(insertion->u.leaf.lexeme, tks->lex);
+		insertion->u.leaf.line_num = tks->line_no;
+		}
+			
 	}
 	
 	insertion->child = NULL;
@@ -424,27 +458,18 @@ void recurseTree(node* tree){
 	if(tree == NULL){
 		return;
 	}
-	char* na = "NA";
+	char* na = "~NA~";
 	char * todo = "TODO";
-	printf("%s\t%d\t\t%d\t",todo, tree->t, tree->depth);
+	printf("%-13s   %d\t%d\t",tree->sym_name, tree->t, tree->depth);
 	//To print type expression.
 	if(tree->t == 1){
-		printf("%s\t%s\t%d\t%s\n",na, tree->u.leaf.lexeme, tree->u.leaf.line_num, na);
+		if(tree->u.leaf.T == EPSILON) 
+			printf("%-30s   %-10s\t%s\t\t%s\n",na, tree->u.leaf.lexeme,na, na);
+		else
+			printf("%-30s   %-10s\t%d\t\t%s\n",na, tree->u.leaf.lexeme, tree->u.leaf.line_num, na);
 	}
 	else{
-		printf("\n");
-		//printf("TODO\tNA\tNA\tTODO\n");
-		entity_ll* rule = tree->u.internal.g_rule;
-		/*while(rule != NULL){
-			if(rule->val.tag == 0){
-				printf(" %s ",get_sym_name(rule->val.e.V));
-			}
-			else{
-				printf(" %s ",get_sym_name(rule->val.e.T));
-			}
-			
-			rule = rule->next;
-		}*/
+		printf("%-30s   %-10s\t~NA~\t\t%s\n",todo,na,tree->u.internal.g_rule);
 	}
 
 	recurseTree(tree->child);
@@ -454,13 +479,15 @@ void recurseTree(node* tree){
 }
 
 
-void printParseTree(node* tree){
+void printParseTree(node* tree){//, tokenStream* tks, grammar G){
+
+	//createParseTree(&tree, *tks, G);
 
 	if(tree == NULL){
 		printf("Empty Tree");
 		return;
 	}
-	printf("\nSymName\tTerminal?\tDepth\tType\tExpression\tLexName\tLineNum\tGrammar Rule\n");
+	printf("\n%s   Terminal?\tDepth\t%-30s   %-10s\tLineNum\t\tGrammar Rule\n\n", "SymbName", "TypeExp", "LexName");
 
 	recurseTree(tree);
 
@@ -488,6 +515,7 @@ void createParseTree(node **p_tree, tokenStream* tks, grammar G){
 
 	entity temp;
 	entity_ll* empty = NULL; //terminals cannot be expanded
+	node* p;
 
 	while(trav_tks != NULL){ //Read until the end of the token stream
 	
@@ -501,8 +529,9 @@ void createParseTree(node **p_tree, tokenStream* tks, grammar G){
 					(pd_st.p_element[pd_st.count-1].ent.e.T == trav_tks->token || 
 					pd_st.p_element[pd_st.count-1].ent.e.T == EPSILON)){
 
-				node * p = stack_to_tree(p_tree,&(pd_st.p_element[pd_st.count-1].ent), 
+				p = stack_to_tree(p_tree,&(pd_st.p_element[pd_st.count-1].ent), 
 						pd_st.p_element[pd_st.count-1].parent, trav_tks, NULL); 
+				//pop_par = pd_st.p_element[pd_st.count-1].parent;
 				temp = pop_PDA(&pd_st); //Pop the non-terminal
 				//printf("\n lexeme popped is %s\n", trav_tks->lex);
 
@@ -514,20 +543,16 @@ void createParseTree(node **p_tree, tokenStream* tks, grammar G){
 
 			if(pd_st.p_element[pd_st.count-1].ent.tag == 1){ //If top element is a terminal means that it doesn't match
 				printf("\nSyntax Error! The TokenStream cannot be parsed with the grammar.\n");
-				printf("T at top is %d and token is %d and lexeme '%s' \n",
-					       	pd_st.p_element[pd_st.count-1].ent.e.V, trav_tks->token, trav_tks->lex);
-				int i = pd_st.count;
-				while(i>0){
-				printf("Flag is %d and token is %d\n", pd_st.p_element[i-1].ent.tag, 
-						pd_st.p_element[i-1].ent.e.T);
-				i--;
-				}
 				exit(0);
 			}
 		}
 	}
-	printf("Parse tree is created successfully.\n");
-	printf("\n************************");
+	
+	printf("\nParse tree is created successfully.\n");
+	//printf("\n************************");
 	printParseTree(*p_tree);
 	return;
 }
+
+
+

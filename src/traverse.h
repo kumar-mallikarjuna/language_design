@@ -1,4 +1,6 @@
 #include "hashmap.h"
+#include "parser.h"
+#include "grammar.h"
 
 typedef struct id_list_t {
 	char id[32];
@@ -10,3 +12,5 @@ typedef struct {
 	id_list *ids;
 	size_t num_ids;
 } typeExpressionTable;
+
+void traverseParseTree(node *t, typeExpressionTable *T);

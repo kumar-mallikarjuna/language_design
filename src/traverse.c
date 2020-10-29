@@ -1,7 +1,10 @@
 #include "grammar.h"
+#include "parser.h"
 #include "traverse.h"
+#include "typeexp.h"
 
 #include <stdio.h>
+#include <ctype.h>
 
 void print_err_a(int line_num,
 		int statement_type,
@@ -27,31 +30,76 @@ void print_err_d(int line_num,
 		"***", "***", depth, message);
 }
 
-void traverseParseTree(parseTree *t, typeExpressionTable *T){
+void printTypeExpressionTable(typeExpressionTable *T){
+	id_list *ptr = T->ids;
+
+	char texp_s[1000] = "<";
+
+	while(ptr){
+		type_exp *texp = (type_exp*) get(&(T->expr), ptr->id);
+		if(texp->texp_type == PRIMITVE){
+			if(texp->prim_exp.basic_el_type == INTEGER_T)
+				printf("%20s\t%d\t%6s\t\n", ptr->id, texp->texp_type, "NA");
+			else if(texp->prim_exp.basic_el_type == REAL_T)
+				printf("%20s\t%d\t%6s\t\n", ptr->id, texp->texp_type, "NA");
+			else if(texp->prim_exp.basic_el_type == BOOLEAN_T)
+				printf("%20s\t%d\t%6s\t\n", ptr->id, texp->texp_type, "NA");
+		}else if(texp->texp_type == RECTANGULAR_ARRAY){
+			int dynamic = 0;
+
+			range *rptr = texp->rect_arr_exp.ranges;
+			while(rptr){
+				if(isdigit((rptr->a)[0]) == 0 || isdigit((rptr->b)[0]) == 0){
+					dynamic = 1;
+					break;
+				}
+
+				rptr = rptr->next;
+			}
+
+			printf("%20s\t%d\t%6s\t\n", ptr->id, texp->texp_type, dynamic ? "dynamic" : "static");
+		}else if(texp->texp_type == JAGGED_ARRAY){
+			printf("%20s\t%d\t%6s\t\n", ptr->id, texp->texp_type, "NA");
+		}
+
+		ptr = ptr->next;
+	}
+}
+
+void traverseParseTree(node *t, typeExpressionTable *T){
 	T->num_ids = 0;
 	T->ids = NULL;
 	create_hm(&(T->expr), 256);
 
-	node *decl = T->root->child;
-
-	while(decl && strcomp(decl->sym_name, "<body>")){
-		decl = decl->sibling;
-	}
+	node *decl = t->child;
 	
+	printf("\n");
+
+	while(decl && (decl->t != 0 || decl->u.internal.V != BODY)){	
+		decl = decl->sibling;
+	}	
+
 	decl = decl->child; // <p_declaration>
+	int count = 0;
 
 	while(decl) {
-		decl = decl->child; // <declaration>
+		printf("Tag: %d, T: %d, V: %d, leaf.lexeme: %s\n", decl->t,
+				decl->u.leaf.T,
+				decl->u.internal.V,
+				decl->u.leaf.lexeme);
+		if(count == 0){
+			decl = decl->child; // <declaration>	
+		}
 
 		// TODO: Check for a <= b and INTEGER
-
-		if(decl->child.tag == 1 && decl->child.leaf.T == EPSILON){
+		
+		if(decl->child->t == 1 && decl->child->u.leaf.T == EPSILON){
 			break;
 		}
 
 		node *line_n = decl->child; // DECLARE
-		node *ids_n = line->sibling; // <s_l_declare>
-		node *type_n = line->sibling->sibling->sibling; // <type>
+		node *ids_n = line_n->sibling; // <s_l_declare>
+		node *type_n = line_n->sibling->sibling->sibling; // <type>
 
 		type_exp *type_rec = (type_exp*) malloc(sizeof(type_exp));
 
@@ -61,7 +109,7 @@ void traverseParseTree(parseTree *t, typeExpressionTable *T){
 
 			head->next = NULL;
 
-			type_rec->type_exp = RECTANGULAR_ARRAY;
+			type_rec->texp_type = RECTANGULAR_ARRAY;
 			type_rec->rect_arr_exp.n_dim = 1;
 			type_rec->rect_arr_exp.ranges = head;
 			type_rec->rect_arr_exp.basic_el_type = INTEGER_T;
@@ -69,9 +117,9 @@ void traverseParseTree(parseTree *t, typeExpressionTable *T){
 			node *dims = type_n->child->sibling; // SQ_OP
 			dims = dims->sibling; // <idx>
 
-			head->a = strdup(dims->child.leaf.lexeme);
+			head->a = strdup(dims->child->u.leaf.lexeme);
 			dims = dims->sibling->sibling;
-			head->b = strdup(dims->child.leaf.lexeme);
+			head->b = strdup(dims->child->u.leaf.lexeme);
 			
 			ptr = head;
 
@@ -79,9 +127,13 @@ void traverseParseTree(parseTree *t, typeExpressionTable *T){
 
 			while(dims){
 				dims = dims->child;
-
-				if(dims->child->t == 1 &&
-						dims->child->u.leaf.T == EPSILON){
+				
+				printf("\tTag: %d, T: %d, V: %d, leaf.lexeme: %s\n", dims->t,
+					dims->u.leaf.T,
+					dims->u.internal.V,
+					dims->u.leaf.lexeme);
+				if(dims->t == 1 &&
+						dims->u.leaf.T == EPSILON){
 					break;
 				}
 
@@ -106,7 +158,7 @@ void traverseParseTree(parseTree *t, typeExpressionTable *T){
 
 			head->next = NULL;
 
-			type_rec->type_exp = JAGGED_ARRAY;
+			type_rec->texp_type = JAGGED_ARRAY;
 			type_rec->jagged_arr_exp.n_dim = 1;
 			type_rec->jagged_arr_exp.x = head;
 			type_rec->jagged_arr_exp.basic_el_type = INTEGER_T;
@@ -114,14 +166,14 @@ void traverseParseTree(parseTree *t, typeExpressionTable *T){
 			node *dims = type_n->child->sibling->sibling; // SQ_OP
 			dims = dims->sibling; // NUM
 
-			head->a = strdup(dims.leaf.lexeme);
+			head->a = strdup(dims->u.leaf.lexeme);
 			dims = dims->sibling->sibling;
-			head->b = strdup(dims.leaf.lexeme);
+			head->b = strdup(dims->u.leaf.lexeme);
 
 			dims = dims->sibling->sibling;
 			dims = dims->sibling->sibling;
 
-			if(dims->child.leaf.T == EPSILON)
+			if(dims->child->u.leaf.T == EPSILON)
 				type_rec->jagged_arr_exp.n_dim = 2;
 			else
 				type_rec->jagged_arr_exp.n_dim = 3;
@@ -132,9 +184,9 @@ void traverseParseTree(parseTree *t, typeExpressionTable *T){
 			// <jagg_inis>
 			node *jagg_inis = dims->sibling->sibling->sibling->sibling;
 			while(jagg_inis){
-				jagged_inis = jagged_inis->child;
+				jagg_inis = jagg_inis->child;
 
-				if(jagg_inis.t == 1 && jagg_inis.leaf.T == EPSILON){
+				if(jagg_inis->t == 1 && jagg_inis->u.leaf.T == EPSILON){
 					break;
 				}
 
@@ -143,14 +195,14 @@ void traverseParseTree(parseTree *t, typeExpressionTable *T){
 
 				while(
 					jagg_inis->t != 1 ||
-					jagg_inis->internal.V != SIZE
+					jagg_inis->u.internal.V != SIZE
 				){
 					jagg_inis = jagg_inis->sibling;
 				}
 
 				jagg_inis = jagg_inis->sibling;
 
-				tmp->n = atoi(jagg_inis.leaf.lexeme);
+				tmp->n = atoi(jagg_inis->u.leaf.lexeme);
 
 				if(!heady){
 					heady = tmp;
@@ -162,7 +214,7 @@ void traverseParseTree(parseTree *t, typeExpressionTable *T){
 
 				while(
 					jagg_inis->t != 1 ||
-					jagg_inis->internal.V != JAGG_ARRAY_NUMS
+					jagg_inis->u.internal.V != JAGG_ARRAY_NUMS
 				){
 					jagg_inis = jagg_inis->sibling;
 				}
@@ -177,9 +229,9 @@ void traverseParseTree(parseTree *t, typeExpressionTable *T){
 					nums = nums->child;
 
 					if((nums->t == 1 &&
-						nums->leaf.T == SEMI_C) ||
+						nums->u.leaf.T == SEMI_C) ||
 						(nums->t == 1 &&
-						 nums->leaf.T == EPSILON))
+						 nums->u.leaf.T == EPSILON))
 					{
 						num_b++;
 
@@ -188,9 +240,9 @@ void traverseParseTree(parseTree *t, typeExpressionTable *T){
 						&&
 						count >= 2)
 						{
-							type_rec->jagged_arr_exp.err = 1;
+							type_rec->err = 1;
 							print_err_d(
-							nums->leaf.line_num,
+							nums->u.leaf.line_num,
 							-1,
 							"2D JA size mismatch"
 							);
@@ -226,11 +278,11 @@ void traverseParseTree(parseTree *t, typeExpressionTable *T){
 					&&
 					num_b != tmp->n)
 				{
-					type_rec->jagged_arr_exp.err = 1;
+					type_rec->err = 1;
 
 					print_err_d(
-						nums->leaf.line_num,
-						nums->leaf->depth,
+						nums->u.leaf.line_num,
+						nums->depth,
 						"2D JA size mismatch"
 					);
 					break;
@@ -240,44 +292,56 @@ void traverseParseTree(parseTree *t, typeExpressionTable *T){
 					&&
 					num_b != tmp->n)
 				{
-					type_rec->jagged_arr_exp.err = 1;
+					type_rec->err = 1;
 
 					print_err_d(
-						nums->leaf.line_num,
-						nums->leaf->depth,
+						nums->u.leaf.line_num,
+						nums->depth,
 						"3D JA size mismatch"
 					);
 					break;
 				}
 			}
 		}else{
-			type_rec->type_exp = PRIMITVE;
+			type_rec->texp_type = PRIMITVE;
 
-			switch(type_n->child->u.leaf.T){
-				case INTEGER:
-					type_rec->rect_arr_exp.basic_el_type = INTEGER_T;
-					break;
-				case REAL:
-					type_rec->rect_arr_exp.basic_el_type = REAL_T;
-					break;
-				case BOOLEAN:
-					type_rec->rect_arr_exp.basic_el_type = BOOLEAN_T;
-					break;
-			}
+			if(type_n->child->u.leaf.T == INTEGER)
+				type_rec->prim_exp.basic_el_type = INTEGER_T;
+			else if(type_n->child->u.leaf.T == REAL)
+				type_rec->prim_exp.basic_el_type = REAL_T;
+			else if(type_n->child->u.leaf.T == BOOLEAN)
+				type_rec->prim_exp.basic_el_type = BOOLEAN_T;
 		}
 
 		if(ids_n->child->u.leaf.T == ID){
+			//printf("%s\n", ids_n->child->u.leaf.lexeme);
+			id_list *idx = (id_list*) malloc(sizeof(id_list));
+			strcpy(idx->id, ids_n->child->u.leaf.lexeme);
+			idx->next = T->ids;
+			T->ids = idx;
 			T->num_ids++;
+
 			insert(&(T->expr), ids_n->child->u.leaf.lexeme, type_rec);
 		}else{
-			T->nums_ids = 2;
+			T->num_ids += 2;
 			ids_n = ids_n->child;
 
 			while(ids_n->u.leaf.T != ID){
 				ids_n = ids_n->sibling;
 			}
 
+			//printf("%s\n", ids_n->u.leaf.lexeme);
+			id_list *idx = (id_list*) malloc(sizeof(id_list));
+			strcpy(idx->id, ids_n->u.leaf.lexeme);
+			idx->next = T->ids;
+			T->ids = idx;
 			insert(&(T->expr), ids_n->u.leaf.lexeme, type_rec);
+
+			//printf("%s\n", ids_n->sibling->u.leaf.lexeme);
+			idx = (id_list*) malloc(sizeof(id_list));
+			strcpy(idx->id, ids_n->sibling->u.leaf.lexeme);
+			idx->next = T->ids;
+			T->ids = idx;
 			insert(&(T->expr), ids_n->sibling->u.leaf.lexeme, type_rec);
 			ids_n = ids_n->sibling->sibling;
 
@@ -287,11 +351,30 @@ void traverseParseTree(parseTree *t, typeExpressionTable *T){
 				if(ids_n->u.leaf.T == EPSILON)
 					break;
 
+				//printf("%s\n", ids_n->u.leaf.lexeme);
+				id_list *idx = (id_list*) malloc(sizeof(id_list));
+				strcpy(idx->id, ids_n->u.leaf.lexeme);
+				idx->next = T->ids;
+				T->ids = idx;
 				insert(&(T->expr), ids_n->u.leaf.lexeme, type_rec);
 				ids_n = ids_n->sibling;
 			}
 		}
 
-		decl = decl->sibling;
+		if(count == 0){
+			decl = decl->sibling;
+			count = 1;
+		}else{
+			decl = type_n->sibling;
+		}
+
+		/*
+		printf("Tag: %d, T: %d, V: %d, leaf.lexeme: %s\n", decl->t,
+				decl->u.leaf.T,
+				decl->u.internal.V,
+				decl->u.leaf.lexeme);
+				*/
 	}
+
+	printTypeExpressionTable(T);
 }
