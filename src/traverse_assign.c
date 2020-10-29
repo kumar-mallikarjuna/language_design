@@ -54,8 +54,8 @@ void traverseParseTree(node *tree, typeExpressionTable T ){
 	if((tree->t ==1) && (tree->u.leaf.T == ADDOP || tree->u.leaf.T == MULOP || tree->u.leaf.T == B_AND|| tree->u.leaf.T == B_OR)){
 		node* operand2 = tree->sibling;
 		node* operand1;
-		node* parent = tree->parent;
-		node* operand1 = parent->parent->child;
+		node* parent = tree->par;
+		node* operand1 = parent->par->child;
 		/*
 		while(operand1->sibling != t){
 			operand1 = operand1->sibling;
@@ -166,7 +166,6 @@ void forAssignOp(node *tree, typeExpressionTable T){
 		while(op2->u.leaf.T != ASSIGNOP){
 			op2 = op2->sibling;
 		}
-
 		TypeE lhs = INTEGER_TYPE;//(INT IS EX HERE)//TypeE for LHS using op1->child in table.
 		op2 = op2->sibling;
 		TypeE rhs = op2->typeExp;
