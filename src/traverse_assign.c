@@ -63,7 +63,6 @@ void traverseParseTree(node *tree, typeExpressionTable T ){
 		while(operand1->sibling != t){
 			operand1 = operand1->sibling;
 		}
-
 		if(operand1->sym_name == "SQ_CL"){
 			operand1 = parent->child;
 			node * temp1 = operand1;
@@ -117,8 +116,22 @@ void traverseParseTree(node *tree, typeExpressionTable T ){
         }
         else{
             //error 
-            print_err_a(operand1->u.leaf.line_num, operand1->depth, "Type Mismatch"); // fill
+            print_err_a(operand1->u.leaf.line_num, tree->u.internal.V, tree->depth, "Type Mismatch"); 
         }
+		/*following changes in traverse.h*/
+		/*
+		void print_err_a(int line_num,
+		non_term operator,
+		int depth,
+		char *message){
+	printf("\n ERROR>> %12d %20s %20s %20s %20s %20s %20s %12d %30s \n",
+		line_num, "Assignment", "***", "***", "***",
+		"***", "***", depth, message);
+			}
+
+		
+		
+		*/
 	}
 	recurseTree(tree->child);
 	recurseTree(tree->sibling);
