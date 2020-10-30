@@ -50,6 +50,7 @@ void traverseParseTree(node *tree, typeExpressionTable T ){
 	}   
 	if(tree->t ==1 && tree->u.leaf.T == ID){
 		//Do expression table search
+		get(&(T.expr), tree->u.leaf.lexeme);
 	}
 	if((tree->t ==1) && (tree->u.leaf.T == ADDOP || tree->u.leaf.T == MULOP || tree->u.leaf.T == B_AND|| tree->u.leaf.T == B_OR)){
 		node* operand2 = tree->sibling;
@@ -93,7 +94,7 @@ void traverseParseTree(node *tree, typeExpressionTable T ){
 		}
 		else{
 			//Initialize type of operand1->child using table and make it as operand1's type
-			term opType = (term)get(&(T.expr), operand1->u.leaf.lexeme); //for operand1 , t = 1
+			TypeE opType = (TypeE)get(&(T.expr), operand1->u.leaf.lexeme); //for operand1 , t = 1
 			operand1->child->typeExp = opType;
 			
 		}
@@ -105,7 +106,7 @@ void traverseParseTree(node *tree, typeExpressionTable T ){
 		}
 		else{
 			//Initialize type of operand2->child using table and make it as operand2's type
-			term opType = (term)get(&(T.expr), operand2->u.leaf.lexeme); 
+			TypeE opType = (TypeE)get(&(T.expr), operand2->u.leaf.lexeme); 
 			operand2->child->typeExp = opType;
 		}
 		//Now check if typeE of operand1==operand2, if it is the no error, make typeE = ADDOP ka typeE, else error.
@@ -114,7 +115,7 @@ void traverseParseTree(node *tree, typeExpressionTable T ){
         }
         else{
             //error 
-            print_err_a(); // fill
+            print_err_a(operand1->u.leaf.line_num, operand1->depth, "Type Mismatch"); // fill
         }
 	}
 	recurseTree(tree->child);
