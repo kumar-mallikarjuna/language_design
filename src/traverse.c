@@ -25,7 +25,7 @@ void print_err_d(int line_num,
 		int depth,
 		char *message)
 {
-	printf("%12d %20s %s %s %s %s %s %12d %30s\n",
+	printf("\nERROR>> %12d %20s %s %s %s %s %s %12d %30s\n",
 		line_num, "declaration", "***", "***", "***",
 		"***", "***", depth, message);
 }
@@ -33,21 +33,30 @@ void print_err_d(int line_num,
 void printTypeExpressionTable(typeExpressionTable *T){
 	id_list *ptr = T->ids;
 
+	printf("\nType Expression Table\n");
+	printf("%20s\tField 2\t Field 3\tField 4\n", "Field 1");
+
 	while(ptr){
 		char texp_s[1000] = "<";
 
 		type_exp *texp = (type_exp*) get(&(T->expr), ptr->id);
 		if(texp->texp_type == PRIMITVE){
 			if(texp->prim_exp.basic_el_type == INTEGER_T){
-				printf("%20s\t%d\t%6s\t", ptr->id, texp->texp_type, "NA");
+				printf("%20s\t%d\t%8s\t", ptr->id, texp->texp_type, "NA");
 				strcat(texp_s, "type=integer>");
 			}else if(texp->prim_exp.basic_el_type == REAL_T){
-				printf("%20s\t%d\t%6s\t", ptr->id, texp->texp_type, "NA");
+				printf("%20s\t%d\t%8s\t", ptr->id, texp->texp_type, "NA");
 				strcat(texp_s, "type=real>");
 			}else if(texp->prim_exp.basic_el_type == BOOLEAN_T){
-				printf("%20s\t%d\t%6s\t", ptr->id, texp->texp_type, "NA");
+				printf("%20s\t%d\t%8s\t", ptr->id, texp->texp_type, "NA");
 				strcat(texp_s, "type=boolean>");
 			}
+		}else if(texp->err == 1){
+			strcpy(texp_s, "***");
+			if(texp->texp_type == RECTANGULAR_ARRAY)
+				printf("%20s\t%d\t%8s\t", ptr->id, texp->texp_type, "***");
+			else
+				printf("%20s\t%d\t%8s\t", ptr->id, texp->texp_type, "NA");
 		}else if(texp->texp_type == RECTANGULAR_ARRAY){
 			strcat(texp_s, "type=rectangularArray, dimensions=");
 			int dynamic = 0;
@@ -70,9 +79,69 @@ void printTypeExpressionTable(typeExpressionTable *T){
 			strcat(texp_s, dim_s);
 			strcat(texp_s, rem);
 			strcat(texp_s, ", basicElementType=integer>");
-			printf("%20s\t%d\t%6s\t", ptr->id, texp->texp_type, dynamic ? "dynamic" : "static");
+			printf("%20s\t%d\t%8s\t", ptr->id, texp->texp_type, dynamic ? "dynamic" : "static");
 		}else if(texp->texp_type == JAGGED_ARRAY){
-			printf("%20s\t%d\t%6s\t", ptr->id, texp->texp_type, "NA");
+			strcat(texp_s, "type=jaggedArray, dimensions=");
+
+			char rem[1000] = "";
+			if(texp->jagged_arr_exp.n_dim == 2){
+				sprintf(rem, "2, range_R1=(%s, %s), range_R2=(", texp->jagged_arr_exp.x->a, texp->jagged_arr_exp.x->b);
+
+				dim *dptr = texp->jagged_arr_exp.y;
+
+				sprintf(rem, "%s%d", rem, dptr->n);
+
+				dptr = dptr->next;
+
+				while(dptr){
+					sprintf(rem, "%s, %d", rem, dptr->n);
+					dptr = dptr->next;
+				}
+
+			}else{
+				sprintf(rem, "3, range_R1=(%s, %s), range_R2=(", texp->jagged_arr_exp.x->a, texp->jagged_arr_exp.x->b);
+
+				dim *dptr = texp->jagged_arr_exp.y;
+
+				sprintf(rem, "%s%d", rem, dptr->n);
+
+				dim *cptr = dptr->child;
+				if(cptr){
+					sprintf(rem, "%s [%d", rem, cptr->n);
+					cptr = cptr->next;
+
+					while(cptr){
+						sprintf(rem, "%s, %d", rem, cptr->n);
+						cptr = cptr->next;
+					}
+
+					strcat(rem, "]");
+				}
+				dptr = dptr->next;
+
+				while(dptr){
+					sprintf(rem, "%s, %d", rem, dptr->n);
+					
+					cptr = dptr->child;
+					if(cptr){
+						sprintf(rem, "%s [%d", rem, cptr->n);
+						cptr = cptr->next;
+
+						while(cptr){
+							sprintf(rem, "%s, %d", rem, cptr->n);
+							cptr = cptr->next;
+						}
+
+						strcat(rem, "]");
+					}
+
+					dptr = dptr->next;
+				}
+			}
+
+			strcat(texp_s, rem);
+			strcat(texp_s, "), basicElementType=integer>");
+			printf("%20s\t%d\t%8s\t", ptr->id, texp->texp_type, "NA");
 		}
 
 		printf("%s\n", texp_s);
@@ -88,8 +157,6 @@ void traverseParseTree(node *t, typeExpressionTable *T){
 
 	node *decl = t->child;
 	
-	printf("\n");
-
 	while(decl && (decl->t != 0 || decl->u.internal.V != BODY)){	
 		decl = decl->sibling;
 	}	
@@ -98,10 +165,12 @@ void traverseParseTree(node *t, typeExpressionTable *T){
 	int count = 0;
 
 	while(decl) {
+		/*
 		printf("Tag: %d, T: %d, V: %d, leaf.lexeme: %s\n", decl->t,
 				decl->u.leaf.T,
 				decl->u.internal.V,
 				decl->u.leaf.lexeme);
+			*/
 		if(count == 0){
 			decl = decl->child; // <declaration>	
 		}
@@ -132,10 +201,61 @@ void traverseParseTree(node *t, typeExpressionTable *T){
 			node *dims = type_n->child->sibling; // SQ_OP
 			dims = dims->sibling; // <idx>
 
+			node *anode = dims->child;
 			head->a = strdup(dims->child->u.leaf.lexeme);
 			dims = dims->sibling->sibling;
 			head->b = strdup(dims->child->u.leaf.lexeme);
-			
+
+			if(isdigit((head->a)[0]) == 0){
+				if(has_key(&(T->expr), head->a) == 0){
+					type_rec->err = 1;
+					print_err_d(
+						anode->u.leaf.line_num,
+						anode->depth,
+						"Rect Array dimension invalid"
+					);
+				}
+
+				type_exp *texp = (type_exp*) get(
+						&(T->expr),
+						head->a);
+
+				if(texp->texp_type != PRIMITVE ||
+					texp->prim_exp.basic_el_type != INTEGER_T){
+					type_rec->err = 1;
+					print_err_d(
+						anode->u.leaf.line_num,
+						anode->depth,
+						"Rect Array dimension invalid"
+					);
+				}
+			}
+
+			if(isdigit((head->b)[0]) == 0){
+				if(has_key(&(T->expr), head->b) == 0){
+					type_rec->err = 1;
+					print_err_d(
+						dims->child->u.leaf.line_num,
+						dims->child->depth,
+						"Rect Array dimension invalid"
+					);
+				}
+
+				type_exp *texp = (type_exp*) get(
+						&(T->expr),
+						head->b);
+
+				if(texp->texp_type != PRIMITVE ||
+					texp->prim_exp.basic_el_type != INTEGER_T){
+					type_rec->err = 1;
+					print_err_d(
+						dims->child->u.leaf.line_num,
+						dims->child->depth,
+						"Rect Array dimension invalid"
+					);
+				}
+			}
+
 			ptr = head;
 
 			dims = dims->sibling->sibling; // <dims>
@@ -143,10 +263,6 @@ void traverseParseTree(node *t, typeExpressionTable *T){
 			while(dims){
 				dims = dims->child;
 				
-				printf("\tTag: %d, T: %d, V: %d, leaf.lexeme: %s\n", dims->t,
-					dims->u.leaf.T,
-					dims->u.internal.V,
-					dims->u.leaf.lexeme);
 				if(dims->t == 1 &&
 						dims->u.leaf.T == EPSILON){
 					break;
@@ -160,9 +276,61 @@ void traverseParseTree(node *t, typeExpressionTable *T){
 
 				dims = dims->sibling; // <idx>
 
+				anode = dims->child;
 				tmp->a = strdup(dims->child->u.leaf.lexeme);
 				dims = dims->sibling->sibling; // <idx>
 				tmp->b = strdup(dims->child->u.leaf.lexeme);
+
+
+				if(isdigit((tmp->a)[0]) == 0){
+					if(has_key(&(T->expr), tmp->a) == 0){
+						type_rec->err = 1;
+						print_err_d(
+							anode->u.leaf.line_num,
+							anode->depth,
+							"Rect Array dimension invalid"
+						);
+					}
+
+					type_exp *texp = (type_exp*) get(
+							&(T->expr),
+							tmp->a);
+
+					if(texp->texp_type != PRIMITVE ||
+						texp->prim_exp.basic_el_type != INTEGER_T){
+						type_rec->err = 1;
+						print_err_d(
+							anode->u.leaf.line_num,
+							anode->depth,
+							"Rect Array dimension invalid"
+						);
+					}
+				}
+
+				if(isdigit((tmp->b)[0]) == 0){
+					if(has_key(&(T->expr), tmp->b) == 0){
+						type_rec->err = 1;
+						print_err_d(
+							dims->child->u.leaf.line_num,
+							dims->child->depth,
+							"Rect Array dimension invalid"
+						);
+					}
+
+					type_exp *texp = (type_exp*) get(
+							&(T->expr),
+							tmp->b);
+
+					if(texp->texp_type != PRIMITVE ||
+						texp->prim_exp.basic_el_type != INTEGER_T){
+						type_rec->err = 1;
+						print_err_d(
+							dims->child->u.leaf.line_num,
+							dims->child->depth,
+							"Rect Array dimension invalid"
+						);
+					}
+				}
 				
 				ptr = tmp;
 
@@ -200,6 +368,7 @@ void traverseParseTree(node *t, typeExpressionTable *T){
 			node *jagg_inis = dims->sibling->sibling->sibling->sibling;
 			while(jagg_inis){
 				jagg_inis = jagg_inis->child;
+				node *R1 = jagg_inis;
 
 				if(jagg_inis->t == 1 && jagg_inis->u.leaf.T == EPSILON){
 					break;
@@ -222,6 +391,7 @@ void traverseParseTree(node *t, typeExpressionTable *T){
 				if(!heady){
 					heady = tmp;
 					ptry = heady;
+					type_rec->jagged_arr_exp.y = heady;
 				}else{
 					ptry->next = tmp;
 					ptry = tmp;
@@ -238,6 +408,8 @@ void traverseParseTree(node *t, typeExpressionTable *T){
 				int num_b = 0;
 				dim *headz = NULL;
 				dim *ptrz = headz;
+
+				int reported = 0;
 
 				node *nums = jagg_inis;
 				while(nums){
@@ -257,11 +429,11 @@ void traverseParseTree(node *t, typeExpressionTable *T){
 						{
 							type_rec->err = 1;
 							print_err_d(
-							nums->u.leaf.line_num,
-							-1,
+							R1->u.leaf.line_num,
+							R1->depth,
 							"2D JA size mismatch"
 							);
-							break;
+							reported = 1;
 						}
 
 						if(
@@ -295,12 +467,12 @@ void traverseParseTree(node *t, typeExpressionTable *T){
 				{
 					type_rec->err = 1;
 
-					print_err_d(
-						jagg_inis->u.leaf.line_num,
-						jagg_inis->depth,
-						"2D JA size mismatch"
-					);
-					break;
+					if(!reported)
+						print_err_d(
+							R1->u.leaf.line_num,
+							R1->depth,
+							"2D JA size mismatch"
+						);
 				}
 				else if(
 					type_rec->jagged_arr_exp.n_dim == 3
@@ -310,17 +482,12 @@ void traverseParseTree(node *t, typeExpressionTable *T){
 					type_rec->err = 1;
 
 					print_err_d(
-						jagg_inis->u.leaf.line_num,
-						jagg_inis->depth,
+						R1->u.leaf.line_num,
+						R1->depth,
 						"3D JA size mismatch"
 					);
-					break;
 				}
 				jagg_inis = jagg_inis->sibling->sibling;
-				printf("HERE\tTag: %d, T: %d, V: %d, leaf.lexeme: %s\n", jagg_inis->t,
-					jagg_inis->u.leaf.T,
-					jagg_inis->u.internal.V,
-					jagg_inis->u.leaf.lexeme);
 			}
 		}else{
 			type_rec->texp_type = PRIMITVE;
@@ -395,6 +562,18 @@ void traverseParseTree(node *t, typeExpressionTable *T){
 				decl->u.leaf.lexeme);
 				*/
 	}
+
+	id_list *ptr = T->ids;
+	id_list *prev = NULL;
+
+	while(ptr){
+		id_list *tmp = ptr->next;
+		ptr->next = prev;
+		prev = ptr;
+		ptr = tmp;
+	}
+
+	T->ids = prev;
 
 	printTypeExpressionTable(T);
 }

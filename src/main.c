@@ -25,7 +25,7 @@ int main(int argc, char *argv[]){
 	printf("Reading successful");
 	node* p_tree = NULL;
 	createParseTree(&p_tree, s, G);
-	printf("Parse tree created!");
+	printf("Parse tree created!\n\n");
 	typeExpressionTable T;
 	traverseParseTree(p_tree, &T);
 

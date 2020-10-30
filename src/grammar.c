@@ -279,7 +279,7 @@ void readGrammar(const char *g_loc, grammar *G){
 		head = ptr = NULL;
 
 		while(token){
-			printf("(%s %d ", token, strcmp(token, "CURL_CL"));
+			// printf("(%s %d ", token, strcmp(token, "CURL_CL"));
 
 			entity_ll *n = (entity_ll*) malloc(
 					sizeof(entity_ll));
@@ -289,13 +289,13 @@ void readGrammar(const char *g_loc, grammar *G){
 				n->val.e.V = *((non_term*) get(
 							&non_terminals,
 							token));
-				printf("non-term %d)", n->val.e.V);
+				// printf("non-term %d)", n->val.e.V);
 			}else if(has_key(&terminals, token) == 1){
 				n->val.tag = 1;
 				n->val.e.T = *((term*) get(
 							&terminals,
 							token));
-				printf("term %d)", n->val.e.T);
+				// printf("term %d)", n->val.e.T);
 			}
 
 			if(!head){

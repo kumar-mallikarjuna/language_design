@@ -19,7 +19,7 @@ typedef struct leaf_val{
 typedef struct internal_val{
 	non_term V;
 	//type_exp type;
-	char g_rule[100];
+	char g_rule[256];
 } internal_val;
 
 
