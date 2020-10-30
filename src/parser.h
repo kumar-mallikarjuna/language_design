@@ -57,7 +57,7 @@ typedef struct PDA_stack{
 	int count;
 }PDA_stack;
 
-void createParseTree(node **p_tree, tokenStream* tks, grammar G);	
-
+void createParseTree(node **p_tree, tokenStream* tks, grammar G);
+void printParseTree(node* tree);
 
 #endif

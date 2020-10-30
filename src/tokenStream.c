@@ -73,7 +73,7 @@ void printstream( tokenStream *s){
     }
 }
 
-void tokeniseSourcecode( char *s_loc, tokenStream **s){ // s_loc denotes “sourcecode.txt” as the input 
+void tokeniseSourcecode(const char *s_loc, tokenStream **s){ // s_loc denotes “sourcecode.txt” as the input 
     *s = NULL;
     FILE *fptr = fopen(s_loc, "r");
     //FILE *fptr = fopen("tfile.txt", "r");

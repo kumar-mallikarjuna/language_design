@@ -487,7 +487,8 @@ void printParseTree(node* tree){//, tokenStream* tks, grammar G){
 		printf("Empty Tree");
 		return;
 	}
-	printf("\n%s   Terminal?\tDepth\t%-30s   %-10s\tLineNum\t\tGrammar Rule\n\n", "SymbName", "TypeExp", "LexName");
+	printf("\n%s   Terminal?\tDepth\t%-30s   %-10s\tLineNum\t\tGrammar Rule\n", "SymbName", "TypeExp", "LexName");
+	printf("------------------------------------------------------------------------------------------------------------\n");
 
 	recurseTree(tree);
 
@@ -548,9 +549,9 @@ void createParseTree(node **p_tree, tokenStream* tks, grammar G){
 		}
 	}
 	
-	printf("\nParse tree is created successfully.\n");
+	printf("\n>> Parse tree created successfully!\n");
 	//printf("\n************************");
-	printParseTree(*p_tree);
+	// printParseTree(*p_tree);
 	return;
 }
 

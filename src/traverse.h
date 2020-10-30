@@ -14,3 +14,4 @@ typedef struct {
 } typeExpressionTable;
 
 void traverseParseTree(node *t, typeExpressionTable *T);
+void printTypeExpressionTable(typeExpressionTable *T);

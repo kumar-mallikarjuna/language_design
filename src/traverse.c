@@ -25,7 +25,7 @@ void print_err_d(int line_num,
 		int depth,
 		char *message)
 {
-	printf("\nERROR>> %12d %20s %s %s %s %s %s %12d %30s\n",
+	printf("\nERROR>> %-12d %-20s %s %s %s %s %s %-12d %-30s\n",
 		line_num, "declaration", "***", "***", "***",
 		"***", "***", depth, message);
 }
@@ -33,8 +33,8 @@ void print_err_d(int line_num,
 void printTypeExpressionTable(typeExpressionTable *T){
 	id_list *ptr = T->ids;
 
-	printf("\nType Expression Table\n");
-	printf("%20s\tField 2\t Field 3\tField 4\n", "Field 1");
+	printf("\n%-20s\tField 2\t Field 3\tField 4\n", "Field 1");
+	printf("-------------------------------------------------------\n");
 
 	while(ptr){
 		char texp_s[1000] = "<";
@@ -42,21 +42,21 @@ void printTypeExpressionTable(typeExpressionTable *T){
 		type_exp *texp = (type_exp*) get(&(T->expr), ptr->id);
 		if(texp->texp_type == PRIMITVE){
 			if(texp->prim_exp.basic_el_type == INTEGER_T){
-				printf("%20s\t%d\t%8s\t", ptr->id, texp->texp_type, "NA");
+				printf("%-20s\t%d\t%-8s\t", ptr->id, texp->texp_type, "NA");
 				strcat(texp_s, "type=integer>");
 			}else if(texp->prim_exp.basic_el_type == REAL_T){
-				printf("%20s\t%d\t%8s\t", ptr->id, texp->texp_type, "NA");
+				printf("%-20s\t%d\t%-8s\t", ptr->id, texp->texp_type, "NA");
 				strcat(texp_s, "type=real>");
 			}else if(texp->prim_exp.basic_el_type == BOOLEAN_T){
-				printf("%20s\t%d\t%8s\t", ptr->id, texp->texp_type, "NA");
+				printf("%-20s\t%d\t%-8s\t", ptr->id, texp->texp_type, "NA");
 				strcat(texp_s, "type=boolean>");
 			}
 		}else if(texp->err == 1){
 			strcpy(texp_s, "***");
 			if(texp->texp_type == RECTANGULAR_ARRAY)
-				printf("%20s\t%d\t%8s\t", ptr->id, texp->texp_type, "***");
+				printf("%-20s\t%d\t%-8s\t", ptr->id, texp->texp_type, "***");
 			else
-				printf("%20s\t%d\t%8s\t", ptr->id, texp->texp_type, "NA");
+				printf("%-20s\t%d\t%-8s\t", ptr->id, texp->texp_type, "NA");
 		}else if(texp->texp_type == RECTANGULAR_ARRAY){
 			strcat(texp_s, "type=rectangularArray, dimensions=");
 			int dynamic = 0;
@@ -79,7 +79,7 @@ void printTypeExpressionTable(typeExpressionTable *T){
 			strcat(texp_s, dim_s);
 			strcat(texp_s, rem);
 			strcat(texp_s, ", basicElementType=integer>");
-			printf("%20s\t%d\t%8s\t", ptr->id, texp->texp_type, dynamic ? "dynamic" : "static");
+			printf("%-20s\t%d\t%-8s\t", ptr->id, texp->texp_type, dynamic ? "dynamic" : "static");
 		}else if(texp->texp_type == JAGGED_ARRAY){
 			strcat(texp_s, "type=jaggedArray, dimensions=");
 
@@ -141,7 +141,7 @@ void printTypeExpressionTable(typeExpressionTable *T){
 
 			strcat(texp_s, rem);
 			strcat(texp_s, "), basicElementType=integer>");
-			printf("%20s\t%d\t%8s\t", ptr->id, texp->texp_type, "NA");
+			printf("%-20s\t%d\t%-8s\t", ptr->id, texp->texp_type, "NA");
 		}
 
 		printf("%s\n", texp_s);
@@ -574,6 +574,4 @@ void traverseParseTree(node *t, typeExpressionTable *T){
 	}
 
 	T->ids = prev;
-
-	printTypeExpressionTable(T);
 }
