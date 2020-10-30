@@ -50,7 +50,9 @@ void traverseParseTree(node *tree, typeExpressionTable T ){
 	}   
 	if(tree->t ==1 && tree->u.leaf.T == ID){
 		//Do expression table search
-		get(&(T.expr), tree->u.leaf.lexeme);
+		TypeE treeTypeExp = (TypeE)get(&(T.expr), tree->u.leaf.lexeme);
+		tree->typeExp = treeTypeExp;
+		tree->par->typeExp = treeTypeExp;
 	}
 	if((tree->t ==1) && (tree->u.leaf.T == ADDOP || tree->u.leaf.T == MULOP || tree->u.leaf.T == B_AND|| tree->u.leaf.T == B_OR)){
 		node* operand2 = tree->sibling;
