@@ -382,9 +382,19 @@ node* stack_to_tree(node** p_tree, entity* ent, node* parent, tokenStream* tks, 
 
 	strcpy(insertion->sym_name, symbol);
 	insertion->t = ent->tag;
+<<<<<<< HEAD
 	if(ent->tag == 0){	//non-terminal
 		insertion->u.internal.V = ent->e.V;
 		get_grule(insertion->u.internal.g_rule, ent, rule);
+||||||| merged common ancestors
+	if(ent->tag == 0){ //non-terminal
+		insertion->u.internal.g_rule = rule;
+=======
+	insertion->par = parent;
+	if(ent->tag == 0){	//non-terminal
+		insertion->u.internal.V = ent->e.V;
+		get_grule(insertion->u.internal.g_rule, ent, rule);
+>>>>>>> 0f46b39927e5571881eefe90d290a04005be0087
 	}
 	else{
 		insertion->u.leaf.T = ent->e.T;
@@ -487,8 +497,14 @@ void printParseTree(node* tree){//, tokenStream* tks, grammar G){
 		printf("Empty Tree");
 		return;
 	}
+<<<<<<< HEAD
 	printf("\n%s   Terminal?\tDepth\t%-30s   %-10s\tLineNum\t\tGrammar Rule\n", "SymbName", "TypeExp", "LexName");
 	printf("------------------------------------------------------------------------------------------------------------\n");
+||||||| merged common ancestors
+	printf("\nSymName\tTerminal?\tDepth\tType\tExpression\tLexName\tLineNum\tGrammar Rule\n");
+=======
+	printf("\n%s   Terminal?\tDepth\t%-30s   %-10s\tLineNum\t\tGrammar Rule\n\n", "SymbName", "TypeExp", "LexName");
+>>>>>>> 0f46b39927e5571881eefe90d290a04005be0087
 
 	recurseTree(tree);
 
@@ -548,10 +564,21 @@ void createParseTree(node **p_tree, tokenStream* tks, grammar G){
 			}
 		}
 	}
+<<<<<<< HEAD
 	
 	printf("\n>> Parse tree created successfully!\n");
 	//printf("\n************************");
 	// printParseTree(*p_tree);
+||||||| merged common ancestors
+	printf("Parse tree is created successfully.\n");
+	printf("\n************************");
+	printParseTree(*p_tree);
+=======
+	
+	printf("\nParse tree is created successfully.\n");
+	//printf("\n************************");
+	printParseTree(*p_tree);
+>>>>>>> 0f46b39927e5571881eefe90d290a04005be0087
 	return;
 }
 

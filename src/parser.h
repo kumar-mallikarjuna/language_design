@@ -19,7 +19,13 @@ typedef struct leaf_val{
 typedef struct internal_val{
 	non_term V;
 	//type_exp type;
+<<<<<<< HEAD
 	char g_rule[256];
+||||||| merged common ancestors
+	entity_ll* g_rule;
+=======
+	char g_rule[100];
+>>>>>>> 0f46b39927e5571881eefe90d290a04005be0087
 } internal_val;
 
 
@@ -27,6 +33,7 @@ typedef struct node{
 	char sym_name[50];  //remove later
 	int depth;
 	int t;  //terminal check
+	struct node* par;
 	union {
 		internal_val internal;
 		leaf_val leaf;
@@ -59,5 +66,6 @@ typedef struct PDA_stack{
 
 void createParseTree(node **p_tree, tokenStream* tks, grammar G);
 void printParseTree(node* tree);
+
 
 #endif
