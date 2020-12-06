@@ -7,16 +7,16 @@
 #include <ctype.h>
 
 void print_err_a(int line_num,
-		//int statement_type,
+		int statement_type,
 		non_term operator,
-		//char *lexeme1,
-		//non_term type1,
-		//char *lexeme2,
-		//non_term type2,
+		char *lexeme1,
+		non_term type1,
+		char *lexeme2,
+		non_term type2,
 		int depth,
 		char *message){
-	printf("\n ERROR>> %12d %20s %20s %20s %20s %20s %20s %12d %30s \n",
-		line_num, "Assignment", "***", "***", "***",
+	printf("%12d %20s %20s %20s %20s %20s %20s %12d %30s",
+		line_num, "declaration", "***", "***", "***",
 		"***", "***", depth, message);
 }
 

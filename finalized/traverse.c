@@ -6,20 +6,6 @@
 #include <stdio.h>
 #include <ctype.h>
 
-void print_err_a(int line_num,
-		//int statement_type,
-		non_term operator,
-		//char *lexeme1,
-		//non_term type1,
-		//char *lexeme2,
-		//non_term type2,
-		int depth,
-		char *message){
-	printf("\n ERROR>> %12d %20s %20s %20s %20s %20s %20s %12d %30s \n",
-		line_num, "Assignment", "***", "***", "***",
-		"***", "***", depth, message);
-}
-
 
 void print_err_d(int line_num,
 		int depth,
@@ -40,7 +26,7 @@ void printTypeExpressionTable(typeExpressionTable *T){
 		char texp_s[1000] = "<";
 
 		type_exp *texp = (type_exp*) get(&(T->expr), ptr->id);
-		if(texp->texp_type == PRIMITVE){
+		if(texp->texp_type == PRIMITIVE){
 			if(texp->prim_exp.basic_el_type == INTEGER_T){
 				printf("%20s\t%d\t%8s\t", ptr->id, texp->texp_type, "NA");
 				strcat(texp_s, "type=integer>");
@@ -220,7 +206,7 @@ void traverseParseTree(node *t, typeExpressionTable *T){
 						&(T->expr),
 						head->a);
 
-				if(texp->texp_type != PRIMITVE ||
+				if(texp->texp_type != PRIMITIVE ||
 					texp->prim_exp.basic_el_type != INTEGER_T){
 					type_rec->err = 1;
 					print_err_d(
@@ -245,7 +231,7 @@ void traverseParseTree(node *t, typeExpressionTable *T){
 						&(T->expr),
 						head->b);
 
-				if(texp->texp_type != PRIMITVE ||
+				if(texp->texp_type != PRIMITIVE ||
 					texp->prim_exp.basic_el_type != INTEGER_T){
 					type_rec->err = 1;
 					print_err_d(
@@ -296,7 +282,7 @@ void traverseParseTree(node *t, typeExpressionTable *T){
 							&(T->expr),
 							tmp->a);
 
-					if(texp->texp_type != PRIMITVE ||
+					if(texp->texp_type != PRIMITIVE ||
 						texp->prim_exp.basic_el_type != INTEGER_T){
 						type_rec->err = 1;
 						print_err_d(
@@ -321,7 +307,7 @@ void traverseParseTree(node *t, typeExpressionTable *T){
 							&(T->expr),
 							tmp->b);
 
-					if(texp->texp_type != PRIMITVE ||
+					if(texp->texp_type != PRIMITIVE ||
 						texp->prim_exp.basic_el_type != INTEGER_T){
 						type_rec->err = 1;
 						print_err_d(
@@ -490,7 +476,7 @@ void traverseParseTree(node *t, typeExpressionTable *T){
 				jagg_inis = jagg_inis->sibling->sibling;
 			}
 		}else{
-			type_rec->texp_type = PRIMITVE;
+			type_rec->texp_type = PRIMITIVE;
 
 			if(type_n->child->u.leaf.T == INTEGER)
 				type_rec->prim_exp.basic_el_type = INTEGER_T;
